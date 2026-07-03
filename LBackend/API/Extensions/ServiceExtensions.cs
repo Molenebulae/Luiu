@@ -131,6 +131,8 @@ namespace API.Extensions
         {
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("啟動失敗: secrets.json 中缺少了 'JwtSettings/Secret");
+            var issuer = jwtSettings["Issuer"] ?? "LuiuBackend";
+            var audience = jwtSettings["Audience"] ?? "LuiuFrontend";
 
             services.AddAuthentication(options =>
             {
@@ -144,11 +146,11 @@ namespace API.Extensions
                 {
                     // 檢查是否為後端發出
                     ValidateIssuer = true,
-                    ValidIssuer = jwtSettings["Issuer"] ?? throw new InvalidOperationException("appsettings 缺少 JwtSettings/Issuer"),
+                    ValidIssuer = issuer,
 
                     // 檢查是否為前端發出
                     ValidateAudience = true,
-                    ValidAudience = jwtSettings["Audience"] ?? throw new InvalidOperationException("appsettings 缺少 JwtSettings/Audience"),
+                    ValidAudience = audience,
 
                     // 檢查效期
                     ValidateLifetime = true,
