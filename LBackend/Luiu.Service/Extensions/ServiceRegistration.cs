@@ -42,17 +42,16 @@ namespace Luiu.Service.Extensions
             services.AddScoped<IVerificationService, VerificationService>();
 
             // 註冊儲存圖片的service
-            string useAzureDb = config["USE_AZURE_DB"] ?? "false";
-            bool shouldWithAzureStorage = useAzureDb.Equals("true", StringComparison.OrdinalIgnoreCase);
-            if (shouldWithAzureStorage)
+            bool useAzureBlobStorage = config.GetValue<bool>("UseAzureBlobStorage");
+            if (useAzureBlobStorage)
             {
                 string blobConnectionString = config["AzureBlobConnectionString"]
-                    ?? throw new InvalidOperationException("系統目前為 Luiu_Azure 模式，但找不到 AzureBlobConnectionString");
+                    ?? throw new InvalidOperationException("UseAzureBlobStorage=true，但找不到 AzureBlobConnectionString");
 
                 // 註冊 Azure SDK 官方客戶端
                 services.AddSingleton(x => new BlobServiceClient(blobConnectionString));
                 services.AddScoped<IStorageService, AzureStorageService>();
-                Console.WriteLine("使用 Luiu_Azure 模式，已掛載：AzureStorageService");
+                Console.WriteLine("使用 Azure Blob Storage，已掛載：AzureStorageService");
             }
             else
             {
