@@ -1,9 +1,20 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 import { useUserStore } from '@/stores/user'
 import router from '@/router'
 
+const buildApiUrl = (path) => {
+  if (!path) return import.meta.env.VITE_BASE_URL || ''
+  if (/^https?:\/\//i.test(path)) return path
+
+  const baseUrl = import.meta.env.VITE_BASE_URL || ''
+  const normalizedBase = baseUrl.replace(/\/$/, '')
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  return `${normalizedBase}${normalizedPath}`
+}
+
 const service = axios.create({
-  baseURL: `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_API_BASE_URL}`,
+  baseURL: buildApiUrl(import.meta.env.VITE_API_BASE_URL),
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
@@ -13,7 +24,7 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (config.version === 'v2') {
-      config.baseURL = import.meta.env.VITE_API_V2
+      config.baseURL = buildApiUrl(import.meta.env.VITE_API_V2)
     }
 
     // Bearer Token
@@ -68,3 +79,4 @@ service.interceptors.response.use(
 )
 
 export default service
+
