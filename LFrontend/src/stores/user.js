@@ -3,9 +3,18 @@ import { checkAuthApi } from "@/api/auth";
 import { luiuNotify } from "@/utils/sweetAlert";
 import router from '@/router'
 
+const loadStoredMember = () => {
+  try {
+    return JSON.parse(localStorage.getItem('Luiu_Member')) || null
+  } catch {
+    localStorage.removeItem('Luiu_Member')
+    return null
+  }
+}
+
 export const useUserStore = defineStore('user', {
   state: () => ({
-    userInfo: JSON.parse(localStorage.getItem('Luiu_Member')) || null,
+    userInfo: loadStoredMember(),
     isInitialized: false
   }),
   getters: {
@@ -74,8 +83,12 @@ export const useUserStore = defineStore('user', {
         const response = await checkAuthApi();
 
         if (response && response.success) {
-          // 更新本地資料
-          this.userInfo = response.data;
+          // 更新本地資料，保留登入時取得的 JWT token
+          const currentToken = this.userInfo?.token || loadStoredMember()?.token
+          this.userInfo = {
+            ...response.data,
+            ...(currentToken ? { token: currentToken } : {})
+          };
           this.isInitialized = true;
           localStorage.setItem('Luiu_Member', JSON.stringify(this.userInfo));
           return true;

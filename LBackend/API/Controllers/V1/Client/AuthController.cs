@@ -69,7 +69,7 @@ namespace API.Controllers.V1.Client
             {
                 HttpOnly = true,
                 Secure = Request.IsHttps,
-                SameSite = SameSiteMode.Lax,
+                SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddMinutes(expiry)
                 //Expires = DateTimeOffset.UtcNow.AddHours(expiry)
@@ -110,7 +110,7 @@ namespace API.Controllers.V1.Client
                 Path = "/",
                 HttpOnly = true,
                 Secure = Request.IsHttps,
-                SameSite = SameSiteMode.Lax
+                SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax
             });
 
             return Success<object>("登出成功");
