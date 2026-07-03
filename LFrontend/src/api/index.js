@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/user'
 import router from '@/router'
 
 const service = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL + import.meta.env.VITE_API_BASE_URL,
+  baseURL: `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_API_BASE_URL}`,
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
@@ -20,7 +20,7 @@ service.interceptors.request.use(
     // const token = localStorage.getItem('Luiu_Token')
     // if (token) {
     //   config.headers.Authorization = `Bearer ${token}`
-    // }
+    // }q
     return config
   },
   (error) => Promise.reject(error),
