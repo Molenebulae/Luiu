@@ -14,13 +14,14 @@ RUN dotnet publish "API/API.csproj" -c Release -o out
 
 # 建立極小化的運行環境，只包含 .NET 10 Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
-WORKDIR /App
+WORKDIR /app
+EXPOSE 8080
 
 # 從編譯階段把發行好的檔案複製過來
 COPY --from=build-env /src/out .
 
-# 設定 Kestrel 伺服器在容器內監聽 80 埠
-ENV ASPNETCORE_URLS=http://+:80
+# 設定 Kestrel 伺服器在容器內預設監聽 8080，Render 會由 PORT 環境變數覆蓋
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 # 執行專案的核心 DLL（請確保大小寫與你的專案名稱完全一致）
 ENTRYPOINT ["dotnet", "API.dll"]

@@ -7,11 +7,18 @@
             bool useAzure = Environment.GetEnvironmentVariable("USE_AZURE_DB") == "true";
             if (useAzure)
             {
-                var baseCloudConn = configuration.GetConnectionString("AzureConnection");
-                var dbPassword = configuration["DbPassword"]
-                    ?? throw new InvalidOperationException("啟動失敗: secrets.json 中缺少了 DbPassword");
+                var azureConnection = configuration.GetConnectionString("AzureConnection")
+                    ?? throw new InvalidOperationException("啟動失敗: 找不到 AzureConnection 連接字串");
 
-                return $"{baseCloudConn}Password={dbPassword};";
+                if (azureConnection.Contains("Password=", StringComparison.OrdinalIgnoreCase))
+                {
+                    return azureConnection;
+                }
+
+                var dbPassword = configuration["DbPassword"]
+                    ?? throw new InvalidOperationException("啟動失敗: AzureConnection 缺少 Password，且 secrets.json 或環境變數中缺少 DbPassword");
+
+                return $"{azureConnection}Password={dbPassword};";
             }
 
 
@@ -19,7 +26,8 @@
 
             if (useCloud)
             {
-                var baseCloudConn = configuration.GetConnectionString("CloudConnection");
+                var baseCloudConn = configuration.GetConnectionString("CloudConnection")
+                    ?? throw new InvalidOperationException("啟動失敗: 找不到 CloudConnection 連接字串");
                 var dbPassword = configuration["DbPassword"]
                     ?? throw new InvalidOperationException("啟動失敗: secrets.json 中缺少了 DbPassword");
 

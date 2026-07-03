@@ -45,6 +45,13 @@ try
 
     builder.Services.AddOpenApi();
 
+    // Render 會提供 PORT；本機 Docker 與 HomeLab 未設定時使用 Dockerfile 的 ASPNETCORE_URLS 預設值
+    var port = Environment.GetEnvironmentVariable("PORT");
+    if (!string.IsNullOrWhiteSpace(port))
+    {
+        builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+    }
+
     Log.Information("剩餘設施註冊成功");
     var app = builder.Build();
 
@@ -71,6 +78,15 @@ try
 
     // 映射控制器
     app.MapControllers();
+
+    // Render / Docker liveness check：不檢查 DB，避免資料庫短暫延遲誤判 API process 掛掉
+    app.MapGet("/api/health", () => Results.Ok(new
+    {
+        status = "ok",
+        service = "Luiu API",
+        environment = app.Environment.EnvironmentName,
+        timestamp = DateTimeOffset.UtcNow
+    })).AllowAnonymous();
 
     //app.MapControllers().RequireRateLimiting("auth_me_policy");
 
