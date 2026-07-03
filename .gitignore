@@ -7,6 +7,7 @@ LFrontend/dist-ssr/
 LFrontend/coverage/
 LFrontend/.env
 LFrontend/.env.*
+!LFrontend/.env.example
 LFrontend/*.local
 LFrontend/*.tsbuildinfo
 LFrontend/.eslintcache
@@ -24,8 +25,6 @@ LBackend/**/[Dd]ebug/
 LBackend/**/[Rr]elease/
 LBackend/**/[Ll]og/
 LBackend/**/[Ll]ogs/
-LBackend/API/appsettings.Development.json
-LBackend/Luiu/appsettings.Development.json
 LBackend/**/*.user
 LBackend/**/*.rsuser
 LBackend/**/*.suo
@@ -42,6 +41,23 @@ LBackend/**/coverage*.xml
 LBackend/**/coverage*.info
 LBackend/**/*.binlog
 LBackend/Prompt/
+
+# =========================
+# Backend Secrets / Local Config
+# =========================
+LBackend/**/appsettings.json
+LBackend/**/appsettings.*.json
+!LBackend/**/appsettings.Example.json
+LBackend/**/Properties/launchSettings.json
+LBackend/**/Properties/serviceDependencies*.json
+LBackend/**/Properties/ServiceDependencies/
+LBackend/**/*.pubxml
+LBackend/**/*.publishsettings
+LBackend/**/*.pfx
+LBackend/**/*.pem
+LBackend/**/*.key
+LBackend/**/*.cer
+LBackend/**/*.crt
 
 # =========================
 # Database
