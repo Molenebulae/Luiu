@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Luiu</title>
+    <script type="importmap"></script>
+    @* 載入CSS *@
+    @await Html.PartialAsync("_Styles")
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div id="layout-wrapper">
+        @* 導覽列 *@
+        @await Html.PartialAsync("_Navbar")
+        @* 導覽列的搜尋 *@
+        @await Html.PartialAsync("_SearchModal")
+        @* 側邊欄 *@
+        @await Html.PartialAsync("_Sidebar")
+        
+        @* 測試用Main *@
+        @* @await Html.PartialAsync("_Main") *@
+
+        @* view載入的位置 *@
+        <main class="app-wrapper">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </main>
+        
+        @* 版型設定 *@
+        @await Html.PartialAsync("_LayoutSettings")
+        @* 回到最上面 *@
+        @await Html.PartialAsync("_ScrollTop")
+        @* footer *@
+        @await Html.PartialAsync("_Footer")
+    </div>
+    @await Html.PartialAsync("_Scripts")
+    @* 載入JS *@
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

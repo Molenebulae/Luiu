@@ -1,0 +1,63 @@
+﻿@model Luiu.Models.TPost
+
+@{
+    ViewData["Title"] = "新增貼文";
+}
+
+<div class="container mt-3">
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">新增貼文</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- 🔸 標題 -->
+                <div class="mb-3">
+                    <label class="form-label">標題</label>
+                    <input asp-for="PostTitle" class="form-control" />
+                    <span asp-validation-for="PostTitle" class="text-danger"></span>
+                </div>
+
+                <!-- 🔸 分類 -->
+                <div class="mb-3">
+                    <label class="form-label">分類（地區）</label>
+                    @Html.DropDownListFor(model => model.CategoryId,
+                        new SelectList(ViewBag.Categories, "Value", "Text"),
+                        "請選擇分類",
+                        new { @class = "form-select" })
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <!-- 🔸 內容 -->
+                <div class="mb-3">
+                    <label class="form-label">內容</label>
+                    <textarea asp-for="PostContent" class="form-control" style="height:200px;"></textarea>
+                    <span asp-validation-for="PostContent" class="text-danger"></span>
+                </div>
+
+                <!-- 🔸 按鈕 -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">
+                        新增
+                    </button>
+
+                    <a href="/Forum/Forumview" class="btn btn-secondary">
+                        取消
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

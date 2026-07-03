@@ -1,0 +1,27 @@
+﻿CREATE TABLE [dbo].[tSpots] (
+    [SpotID]           INT             IDENTITY (1000001, 1) NOT NULL,
+    [RegionID]         INT             NOT NULL,
+    [MemberID]         INT             NULL,
+    [SpotName]         NVARCHAR (200)  NOT NULL,
+    [Longitude]        DECIMAL (11, 8) NULL,
+    [Latitude]         DECIMAL (10, 8) NULL,
+    [Tel]              NVARCHAR (50)   NULL,
+    [Address]          NVARCHAR (MAX)  NULL,
+    [OfficialURL]      NVARCHAR (MAX)  NULL,
+    [OpeningHoursJson] NVARCHAR (MAX)  NULL,
+    [LastUpdated]      DATETIME        DEFAULT (getdate()) NOT NULL,
+    [Rating]           DECIMAL (2, 1)  NULL,
+    [UserRatingCount]  INT             NULL,
+    [GoogleMapURL]     NVARCHAR (MAX)  NULL,
+    [GoogleMapID]      NVARCHAR (MAX)  NULL,
+    [PriceLevel]       NVARCHAR (50)   NULL,
+    [ViewCount]        INT             CONSTRAINT [DF_Spot_ViewCount] DEFAULT ((0)) NOT NULL,
+    [FavoriteCount]    INT             CONSTRAINT [DF_Spot_FavoriteCount] DEFAULT ((0)) NOT NULL,
+    [PlanCount]        INT             CONSTRAINT [DF_Spot_PlanCount] DEFAULT ((0)) NOT NULL,
+    [RecordCount]      INT             CONSTRAINT [DF_Spot_RecordCount] DEFAULT ((0)) NOT NULL,
+    [RefCount]         INT             CONSTRAINT [DF_Spot_RefCount] DEFAULT ((0)) NOT NULL,
+    [PhotoUrl]         NVARCHAR (MAX)  NULL,
+    [PhotoReference]   NVARCHAR (512)  NULL,
+    CONSTRAINT [PK_Spot] PRIMARY KEY CLUSTERED ([SpotID] ASC)
+);
+

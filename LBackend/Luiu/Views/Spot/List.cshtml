@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Luiu.ViewModels.CSpotListViewModel>
+
+@{
+    ViewBag.Title = "景點列表";
+}
+<div>
+    <h2 class="my-2">景點列表</h2>
+</div>
+<div>
+    <div class="my-2">
+        <a asp-action="Create" class="btn btn-outline-primary btn-sm">新增景點</a>
+        @Html.ActionLink("地區管理", "List", "Region", null, new { @class = "btn btn-outline-primary btn-sm ms-3" })
+    </div>
+    @using (Html.BeginForm())
+    {
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <select id="regionFilter" name="RegionId" class="form-select"
+                        asp-items="@(IEnumerable<SelectListItem>)ViewBag.RegionList">
+                </select>
+            </div>
+            <div class="col-auto">
+                <input type="text" id="keyword" name="txtkeyword" class="form-control"
+                       placeholder="輸入關鍵字" value="@Context.Request.Query["txtkeyword"]" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">搜尋</button>
+            </div>
+        </div>
+    }
+    <hr />
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                地區
+            </th>
+            <th>
+                創建人
+            </th>
+            <th>
+                景點名稱
+            </th>
+            <th>
+                地址
+            </th>
+            <th>
+                更新時間
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RegionName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.spot.MemberId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.spot.SpotName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.spot.Address)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.spot.LastUpdated)
+                    </td>
+                    <td>
+                        @Html.ActionLink("修改", "Edit", "Spot", new { id = item.spot.SpotId }, new { @class = "btn btn-outline-success btn-sm" })
+                        @Html.ActionLink("刪除", "Delete", "Spot", new { id = item.spot.SpotId }, new { @class = "btn btn-outline-danger btn-sm ms-3", onclick = "return confirm('確定要刪除這個景點嗎?')" })
+
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+</div>

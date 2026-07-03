@@ -1,0 +1,26 @@
+﻿/* wwwroot/css/trip-custom.css */
+
+/* 主留言樣式 */
+.comment-row {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s;
+}
+
+/* 子留言（回覆）縮排樣式 */
+.comment-reply {
+    padding-left: 50px !important;
+    background-color: #f8f9fa; /* 淡淡的灰色背景 */
+    color: #6c757d; /* 文字顏色調淺一點 */
+}
+
+/* 回覆圖示樣式 */
+.reply-icon {
+    color: #adb5bd;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+/* 讓滑鼠移過時有感 */
+.comment-row:hover {
+    background-color: #f1f3f5;
+}

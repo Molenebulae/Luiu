@@ -1,0 +1,14 @@
+﻿<Solution>
+  <Folder Name="/方案項目/">
+    <File Path="Dockerfile" />
+  </Folder>
+  <Project Path="API/API.csproj" Id="655f8a3f-ef8d-4e1a-9d91-cd31afc24d45" />
+  <Project Path="Luiu.Domain/Luiu.Domain.csproj" Id="22b6c98c-f686-45c6-9d4e-71a070b536cb" />
+  <Project Path="Luiu.Service.Tests/Luiu.Service.Tests.csproj" Id="a57bce33-a073-41fb-b874-0e85132ed7bf" />
+  <Project Path="Luiu.Service/Luiu.Service.csproj" Id="2874ecda-07e4-4388-93d6-f0f635bd9828" />
+  <Project Path="Luiu/Luiu.csproj" />
+  <Project Path="../LDatabase/LuiuDB/LuiuDB.sqlproj" Id="211d1d35-228c-455f-9429-a25a360d57bb">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>

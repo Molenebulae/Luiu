@@ -1,0 +1,115 @@
+﻿@model Luiu.ViewModels.CRankingDashboardViewModel
+@{
+    ViewBag.Title = "權重設定";
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>權重設定</h2>
+        <a href="@Url.Action("History", "Ranking")" class="btn btn-outline-secondary">返回排行榜</a>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white px-5 py-3 fs-6">權重設定</div>
+                <div class="card-body">
+                    <form asp-action="UpdateWeights" method="post">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">瀏覽次數</label>
+                                <input type="number" name="ViewCount" class="form-control" value="@Model.Weights.ViewCount" min="0" />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">加入最愛</label>
+                                <input type="number" name="FavoriteCount" class="form-control" value="@Model.Weights.FavoriteCount" min="0" />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">加入規劃</label>
+                                <input type="number" name="PlanCount" class="form-control" value="@Model.Weights.PlanCount" min="0" />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">旅遊回憶</label>
+                                <input type="number" name="RecordCount" class="form-control" value="@Model.Weights.RecordCount" min="0" />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">論壇引用</label>
+                                <input type="number" name="RefCount" class="form-control" value="@Model.Weights.RefCount" min="0" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">儲存並套用</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white px-5 py-3 fs-6">系統排程狀態</div>
+                <div class="px-3 pt-3">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>最近一次月快照時間：</span>
+                            <strong>@(Model.LastSnapTime?.ToString("yyyy-MM-dd HH:mm") ?? "無紀錄")</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>最近一次景點榜產生日期：</span>
+                            <strong>@(Model.LastSpotRankDate?.ToString("yyyy-MM-dd") ?? "未結算")</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    <button class="btn btn-danger btn-sm" id="btnRecalculate">
+                        重新結算
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            $('#btnRecalculate').click(function () {
+                Swal.fire({
+                    title: '確定要重新結算嗎？',
+                    text: "確認後會依據目前的權重設定，重新計算本月的排名並覆蓋舊資料。",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: '確認',
+                    cancelButtonText: '取消'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: '計算中...',
+                            html: '',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // 發送 AJAX 請求
+                        $.post('@Url.Action("Recalculate", "Ranking")')
+                            .done(function (response) {
+                                if (response.success) {
+                                    Swal.fire('完成！', response.message, 'success').then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('錯誤', response.message, 'error');
+                                }
+                            })
+                            .fail(function () {
+                                Swal.fire('錯誤', '網路連線或伺服器發生異常', 'error');
+                            });
+                    }
+                });
+            });
+        });
+    </script>
+}

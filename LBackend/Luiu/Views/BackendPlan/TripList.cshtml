@@ -1,0 +1,202 @@
+﻿@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+@using Luiu.Helpers
+@using Luiu.Enums
+@using Luiu.ViewModels
+@model IEnumerable<Luiu.ViewModels.CTripListViewModel>
+
+<h4>旅遊行程規劃資料一覽表</h4>
+@using (Html.BeginForm())
+{
+    var vmckv = ViewBag.vm as Luiu.ViewModels.CKeywordViewModel;
+    @* @:關鍵字 @Html.TextBox("txtKeyword") *@
+    //版1
+    <div class="d-flex mb-3">
+        @* 使用手寫 input 或 Html.TextBox 加上 class 均可 *@
+        <input type="text"
+               name="txtKeyword"
+               class="form-control rounded-pill me-2"
+               style="width:350px"
+               placeholder="搜尋行程名稱或建立者..."
+               value="@vmckv.txtKeyword" />
+               @* 這裡加上 value 可以讓搜尋後關鍵字留在框內 *@
+
+        <button type="submit" class="btn btn-primary rounded-pill">
+            <i class="ri-search-line me-1"></i> 搜尋
+        </button>
+    </div>
+}
+@* <p>
+    <a asp-action="Create">新增旅遊行程規劃</a>
+</p> *@
+@{
+    var vm = ViewBag.vm as Luiu.ViewModels.CKeywordViewModel;
+    // 加一個防呆判斷，如果真的還是 null 就不執行後面的計算，避免當機
+    if (vm == null)
+    {
+        return;
+    }
+    int totalPage = (int)Math.Ceiling((double)vm.TotalCount / vm.PageSize);
+
+    // 設定顯示按鈕
+    int maxButtons = 5;
+    int startPage = vm.Page - (maxButtons / 2);
+    int endPage = vm.Page + (maxButtons / 2);
+
+    // 處理左邊界
+    if (startPage <= 0)
+    {
+        endPage -= (startPage - 1);
+        startPage = 1;
+    }
+
+    // 處理右邊界
+    if (endPage > totalPage)
+    {
+        endPage = totalPage;
+        if (endPage - maxButtons + 1 > 0)
+            startPage = endPage - maxButtons + 1;
+        else
+            startPage = 1;
+    }
+
+    int startItem = (vm.Page - 1) * vm.PageSize + 1;
+    int endItem = Math.Min(vm.Page * vm.PageSize, vm.TotalCount);
+
+
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                序
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OwnerName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TripName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PrivacyStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsSuggest)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdateAt)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = (vm.Page - 1) * vm.PageSize; // 建議序號累加，這樣第二頁才會從 11 開始
+            foreach (var item in Model)
+            {
+                count++;
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    @* 找到你顯示「建立者」的那一欄 *@
+                    <td class="d-flex align-items-center gap-3">
+                        @* 1. 會員照片*@
+                        <img alt="Avatar" class="avatar-md rounded-pill"
+                             src="@(string.IsNullOrEmpty(item.OwnerIcon) ? "/images/default-avatar.png" : item.OwnerIcon)"
+                             style="width: 40px; height: 40px; object-fit: cover;">
+                        <div>
+                            @* 2. 會員名稱 *@
+                            <h6 class="mb-1">
+                                @item.OwnerName
+                            </h6>
+                            @* 3. 會員 ID *@
+                            <p class="fs-12 mb-0 text-muted">
+                                ID:
+                                <span class="fw-semibold">@item.OwnerId</span>
+                            </p>
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.TripName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.StartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.EndDate)
+                    </td>
+                    <td>
+                        <input type="checkbox" checked="@item.IsPublic" disabled />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.IsSuggest)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.CreateAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.UpdateAt)
+                    </td>
+                    <td>
+                        @Html.ActionLink("留言", "CommentList", "BackendPlanComment", new { id = @item.TripID }, null) |
+                        @Html.ActionLink("建議", "Suggest", "BackendPlan", new { id = @item.TripID }, null) |
+                        @Html.ActionLink("修改", "Edit", "BackendPlan", new { id = @item.TripID }, null) |
+                        @Html.ActionLink("刪除", "Delete", "BackendPlan", new { id = @item.TripID },
+                        new { onclick = "return confirm('確定要刪除嗎?')" })
+                    </td>
+                   
+                </tr>
+            }
+        
+        }
+    </tbody>
+</table>
+
+<div class="d-flex flex-wrap gap-3 align-items-center mt-5">
+    <div class="fw-medium">
+        Showing @startItem - @endItem of @vm.TotalCount Entries
+    </div>
+    <div class="ms-auto">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination pagination-primary mb-0">
+                @* 上一頁 *@
+                <li class="page-item @(vm.Page == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("TripList", new { txtKeyword = vm.txtKeyword, Page = vm.Page - 1 })">
+                        <i class="ri-arrow-left-s-line fw-semibold">
+                        </i>
+                    </a>
+                </li>
+
+                @* 頁碼清單 *@
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item" @(vm.Page == i ? "active" : "")">
+                        @* 加上 active 類別標示當前頁 *@
+                        <a class="page-link" href="@Url.Action("TripList", new { txtKeyword = vm.txtKeyword, Page = i })">
+                            @i
+                        </a>
+                    </li>
+                                    
+                }
+
+                @* 下一頁 *@
+                <li class="page-item @(vm.Page == totalPage ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("TripList", new { txtKeyword = vm.txtKeyword, Page = vm.Page + 1 })">
+                        <i class="ri-arrow-right-s-line fw-semibold">
+                        </i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+

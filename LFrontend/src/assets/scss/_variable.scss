@@ -1,0 +1,79 @@
+/******* Customized Bootstrap ********/
+
+$luiu-blue: #13357b;
+$luiu-orange: #f89500;
+
+$primary: $luiu-orange;
+$secondary: #1f05e6;
+$white: #ffffff;
+$light: #f2f2f2;
+$dark: #212529;
+$text-muted: #6c757d;
+// $danger: 用於表示「錯誤」、「危險」或「警告」狀態的主色調。
+// 預計用於：表單驗證錯誤邊框、錯誤訊息文字、刪除按鈕等。
+$danger: #e74c3c;
+
+// $input-border: 用於所有輸入表單（Input, Select, Textarea）的預設邊框顏色。
+// 預計用於：維持全站表單在未聚焦狀態下的一致視覺感。
+$input-border: #ced4da;
+
+// 個人頁面用
+// 1. 品牌色系 (Brand Colors)
+$luiu-bg-light: #f8f9fc; // 你卡片的背景色
+$luiu-btn-bg: #f0f2f5; // 按鈕的背景色
+$luiu-text-main: #1a1a1a;
+
+// 2. 形狀定義 (Shapes)
+$luiu-card-radius: 20px;
+$luiu-btn-circle-size: 40px;
+
+// 3. 動畫定義 (Transitions)
+$luiu-transition: all 0.2s ease-in-out;
+
+$chictrip-bg-color: #eef7fc;
+$carousel-transition-time: 0.6s;
+$mask-width: 7.5vw;
+
+$footer-bg: #f4f4f4; // 淺灰色背景 (Slate 50)
+$footer-title-color: #1e293b; // 主要標題與 Logo 顏色 (Slate 800)
+$footer-text-main: #475569; // 主要內文與連結顏色 (Slate 600)
+$footer-text-muted: #64748b; // 次要提示文字顏色 (Slate 500)
+$footer-border-color: #e2e8f0; // 淺色分隔線顏色 (Slate 200)
+$social-btn-bg: #e2e8f0; // 社群按鈕預設灰色背景
+$social-btn-icon: #475569; // 社群按鈕預設圖示顏色
+
+// 核心語意變數
+$color-bg-page: $luiu-bg-light; // 頁面背景
+$color-bg-card: $white; // 卡片背景
+$color-text-main: $luiu-text-main; // 主要標題/內文
+$color-text-secondary: $text-muted; // 次要提示文字
+$color-border: $input-border; // 通用邊框顏色
+$color-danger: $danger; // 危險色
+
+// 設定頁面專屬
+$settings-sidebar-hover: $light; // 側邊欄懸浮色
+$settings-sidebar-active: rgba($primary, 0.1); // 側邊欄啟用底色
+
+// $font-family-base: 'Roboto', sans-serif;
+
+// $headings-font-family: 'Jost', sans-serif;
+
+// $body-color: #757575;
+
+// $headings-color: $dark;
+
+// $headings-font-weight: 500;
+
+// $display-font-weight: 600;
+
+// $enable-responsive-font-sizes: true;
+
+// $border-radius: 10px;
+
+// $border-radius-sm: $border-radius;
+
+// $border-radius-lg: $border-radius;
+
+// $link-decoration: none;
+
+// $enable-negative-margins: true;

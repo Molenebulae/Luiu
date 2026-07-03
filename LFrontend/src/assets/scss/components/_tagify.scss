@@ -1,0 +1,89 @@
+.tagify-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  cursor: text;
+  position: relative;
+  min-height: 45px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  transition: border-color 0.3s ease;
+
+  &:focus-within {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+  }
+
+  .tag-item {
+    display: inline-flex;
+    align-items: center;
+    // 使用主色調的透明背景，這樣主色換了，標籤風格也會跟著換
+    background-color: rgba($primary, 0.15);
+    color: $dark; // 文字也統一使用主色或 secondary，看你的配色需求
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    animation: tag-pop 0.2s ease-out;
+
+    .tag-remove {
+      margin-left: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: $primary;
+      opacity: 0.6;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .inline-input {
+    flex: 1;
+    border: none !important;
+    outline: none !important;
+    padding: 4px 0;
+    min-width: 80px;
+    background: transparent;
+    font-size: 15px;
+    color: $dark;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  .tag-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    .dropdown-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      color: $dark;
+
+      &:hover {
+        background-color: $light;
+        color: $primary;
+      }
+    }
+  }
+}
+
+@keyframes tag-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

@@ -1,0 +1,119 @@
+﻿@model IEnumerable<Luiu.ViewModels.CTripDetailListViewModel>
+<h1>行程規劃細目一覽</h1>
+<p>
+    <a asp-action="Create">新增地點</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                序
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SpotAlias)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Notes)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DayNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SortOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StayDuration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TransportMode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TransportTime)
+            </th>
+            @* <th>
+                @Html.DisplayNameFor(model => model.TripId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SpotId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VersionId)
+            </th> *@
+            <th>
+                @Html.DisplayNameFor(model => model.IsMaster)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SuggestBy)
+            </th>
+            @* <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th> *@
+            <th>
+                @Html.DisplayNameFor(model => model.CreateAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdateAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            @* <td>
+                @Html.DisplayFor(modelItem => item.DetailId)
+            </td> *@
+            <td>
+                @Html.DisplayFor(modelItem => item.SpotAlias)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DayNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SortOrder)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StayDuration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransportMode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransportTime)
+            </td>
+            @* <td>
+                @Html.DisplayFor(modelItem => item.TripId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SpotId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VersionId)
+            </td> *@
+            <td>
+                @Html.DisplayFor(modelItem => item.IsMaster)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SuggestBy)
+            </td>
+            @* <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td> *@
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdateAt)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

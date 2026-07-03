@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Luiu.ViewModels.CTripCommentViewModel>
+
+@{
+    ViewData["Title"] = "CommentList";
+}
+<h1>行程：@(ViewBag.TripName ?? "載入中") 的留言區</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+            bool isReply = item.ParentID.HasValue && item.ParentID > 0;
+
+
+            <tr class="comment-row">
+                <td class="@(isReply ? "comment-reply" : "")">
+                    @if (isReply)
+                    {
+                        <span class="reply-icon">↳</span>
+                    }
+                    <strong>@item.UserName</strong>
+            </td>
+                <td class="@(isReply ? "comment-reply" : "")">
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateAt)
+            </td>
+                <td>
+                    @Html.ActionLink("修改", "EditComment", new { id = item.CommentID }) |
+                    @Html.ActionLink("刪除", "DeleteComment", new { id = item.CommentID },
+                        new { onclick = "return confirm('確定要刪除這條留言嗎？')" })
+                </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/trip-custom.css" asp-append-version="true" />
+}

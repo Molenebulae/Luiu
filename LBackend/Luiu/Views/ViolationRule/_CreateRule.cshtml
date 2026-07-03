@@ -1,0 +1,83 @@
+﻿@model Luiu.Models.CViolationRuleWrap
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div aria-hidden="true" aria-labelledby="createExamModalLabel" class="modal fade" data-bs-keyboard="false"
+     id="createExamModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createExamModalLabel">
+                    添加新規則
+                </h5>
+                <button aria-label="Close" class="btn-close icon-btn-sm" data-bs-dismiss="modal" type="button">
+                    <i class="ri-close-large-line fw-semibold">
+                    </i>
+                </button>
+            </div>
+            <form asp-action="Create">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Title" class="control-label"></label> :
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="RuleType" class="control-label"></label> :
+                            <select asp-for ="RuleType" class="form-select"
+                                    asp-items='@(ViewData["TypeItems"] as IEnumerable<SelectListItem>)'>
+                                <option value="">-- 請選擇分類 --</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="control-label"></label> :
+                            <input asp-for="Description" class="form-control" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-6">
+                            <label asp-for="Severity" class="control-label"></label> :
+                            <select asp-for="Severity" class="form-select">
+                                <option value="1">★</option>
+                                <option value="2">★★</option>
+                                <option value="3" selected>★★★</option>
+                                <option value="4">★★★★</option>
+                                <option value="5">★★★★★</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="IsActivate" class="control-label"></label> :
+                            <div class="d-flex flex-wrap gap-2">
+                                <div>
+                                    <input asp-for="IsActivate" type="radio" class="btn-check" name="options" id="private" value="false" autocomplete="off">
+                                    <label class="btn btn-light-info" for="private">關閉</label>
+                                </div>
+                                <div>
+                                    <input asp-for="IsActivate" type="radio" class="btn-check" name="options" id="public" value="true" autocomplete="off" checked>
+                                    <label class="btn btn-light-info" for="public">開啟</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="DefaultAction" class="control-label"></label> :
+                            <input asp-for="DefaultAction" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal" type="button">
+                        結束
+                    </button>
+                    <button class="btn btn-primary" type="submit">
+                        新增規則
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

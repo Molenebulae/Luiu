@@ -1,0 +1,139 @@
+// src/assets/scss/pages/_profile.scss
+
+.profile-header {
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+
+  .profile-main-info {
+    .avatar-wrapper {
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    }
+
+    .user-details {
+      .user-name {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  .profile-info-column {
+    .stats-list {
+      padding: 0;
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+
+        padding-right: 20px;
+        margin-right: 20px;
+
+        &:not(:last-child)::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 1px;
+          height: 1.2rem;
+          background-color: #dee2e6;
+        }
+
+        .stat-value {
+          font-size: 1.25rem;
+          color: $dark;
+          line-height: 1;
+        }
+        .stat-label {
+          font-size: 0.75rem;
+          color: $text-muted;
+          line-height: 1;
+        }
+      }
+
+      .social-links {
+        padding: 0;
+      }
+    }
+
+    .profile-socials {
+      .social-icon-link {
+        display: flex;
+        transition: transform 0.3s ease;
+
+        .svg-icon {
+          width: 24px;
+          height: 24px;
+          object-fit: contain;
+          // 預設灰色
+          filter: grayscale(100%) opacity(0.4);
+          transition: filter 0.3s ease;
+        }
+
+        &.is-active {
+          // 恢復原色
+          .svg-icon {
+            filter: grayscale(0%) opacity(1);
+          }
+
+          &:hover {
+            transform: translateY(-3px);
+            .svg-icon {
+              filter: brightness(1.1);
+            }
+          }
+        }
+
+        // 加深顏色
+        &:not(.is-active):hover {
+          .svg-icon {
+            filter: grayscale(100%) opacity(0.8);
+          }
+        }
+      }
+    }
+
+    .profile-bio {
+      .bio-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: $secondary;
+        max-width: 450px;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+.profile-tabs-nav {
+  top: 0;
+  z-index: 1020;
+
+  .nav-tabs {
+    .nav-item {
+      .nav-link {
+        // 沒有選擇時的顏色
+        color: $gray-400;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: $dark;
+          border-color: transparent;
+        }
+
+        &.active {
+          color: $primary;
+          background-color: transparent;
+          font-weight: 700;
+          border-bottom: 2px solid $primary;
+        }
+      }
+    }
+  }
+}

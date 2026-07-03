@@ -1,0 +1,71 @@
+﻿@model Luiu.ViewModels.MemoryDetailViewModel
+
+@{
+    ViewData["Title"] = "旅遊紀錄詳細內容";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>📄 遊記審核詳細內容</h2>
+        <a asp-action="DCReview" class="btn btn-secondary">🔙 返回列表</a>
+    </div>
+
+    <div class="card shadow-sm">
+        @if (!string.IsNullOrEmpty(Model.CoverImage))
+        {
+            <img src="@Model.CoverImage" class="card-img-top" alt="封面圖" style="height: 300px; object-fit: cover; background-color: #f8f9fa;" />
+        }
+
+        <div class="card-body">
+            <h3 class="card-title text-primary fw-bold">@Model.Title</h3>
+            <p class="text-muted mb-4">
+                👤 作者：@Model.AuthorName | 📅 日期：@Model.DateRange
+            </p>
+
+            <h5 class="fw-bold border-bottom pb-2">📍 行程大綱</h5>
+            <ul class="list-group list-group-flush mb-4">
+                @if (Model.Itinerary.Any())
+                {
+                    foreach (var dayInfo in Model.Itinerary)
+                    {
+                        <li class="list-group-item bg-transparent">@dayInfo</li>
+                    }
+                }
+                else
+                {
+                    <li class="list-group-item text-muted">這篇遊記尚未安排任何景點喔！</li>
+                }
+            </ul>
+
+            @if (Model.ReviewStatus == 0)
+            {
+                <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                    <form asp-action="UpdateStatus" method="post">
+                        <input type="hidden" name="memoryId" value="@Model.MemoryID" />
+                        <input type="hidden" name="status" value="1" />
+                        <button type="submit" class="btn btn-success px-4">✔️ 審核通過</button>
+                    </form>
+
+                    <form asp-action="UpdateStatus" method="post">
+                        <input type="hidden" name="memoryId" value="@Model.MemoryID" />
+                        <input type="hidden" name="status" value="2" />
+                        <button type="submit" class="btn btn-danger px-4">❌ 退回修改</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="mt-4 pt-3 border-top text-muted">
+                    <h5>
+                        💡 此篇遊記已審核完畢
+                        <span class="badge @(Model.ReviewStatus == 1 ? "bg-success" : "bg-danger")">
+                            @(Model.ReviewStatus == 1 ? "已通過" : "已退回")
+                        </span>
+                        ，無法再更改狀態。
+                    </h5>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+</div>

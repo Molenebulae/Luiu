@@ -1,0 +1,42 @@
+/* FloatingInput.scss */
+
+.form-floating {
+  .custom-border {
+    border: 1px solid $input-border;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: $dark; // 使用語意化的 $dark
+    transition: all 0.2s ease-in-out;
+
+    // 聚焦狀態
+    &:focus {
+      border-color: $primary; // 使用語意化的 $primary
+      box-shadow: 0 0 0 0.25rem rgba($primary, 0.15);
+      outline: 0;
+    }
+
+    // 錯誤狀態 (不再寫死顏色)
+    &.hasError {
+      border-color: $danger !important;
+      box-shadow: 0 0 0 0.25rem rgba($danger, 0.2) !important;
+
+      // 讓 Label 的顏色也跟著變為錯誤色
+      & ~ label {
+        color: $danger;
+      }
+    }
+  }
+
+  label {
+    color: $text-muted; // 使用語意化的 $text-muted
+    transition: all 0.2s;
+  }
+
+  .invalid-feedback {
+    display: block;
+    color: $danger; // 使用語意化的 $danger
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+}

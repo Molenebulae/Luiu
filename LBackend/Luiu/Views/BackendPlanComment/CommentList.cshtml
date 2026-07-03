@@ -1,0 +1,86 @@
+﻿@model IEnumerable<Luiu.ViewModels.CTripCommentViewModel>
+
+@{
+    ViewData["Title"] = "CommentList";
+}
+<h1>行程：@(ViewBag.TripName ?? "載入中") 的留言區</h1> @Html.ActionLink("回去行程列表", "TripList","BackendPlan")
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            // 判定是否為回覆：ParentID 有值且大於 0
+            bool isReply = item.ParentID.HasValue && item.ParentID > 0;
+            // 判斷是否為子留言 (假設 ParentID 不為 null 且不為 0 就是回覆)
+            string indentClass = (item.ParentID != null && item.ParentID > 0) ? "ps-5 shadow-sm bg-light" : "";
+            string replyIcon = (item.ParentID != null && item.ParentID > 0) ? "↳ " : "";
+            <tr class="@indentClass">
+                @* 找到你顯示「建立者」的那一欄 *@
+                <td class="d-flex align-items-center gap-3" style="@(isReply ? "padding-left: 50px;" : "")">
+                    @* 在顯示名稱前加上回覆圖示 *@
+                    <span class="text-primary fw-bold">@replyIcon</span>
+                    @* 1. 會員照片*@
+                    <img alt="Avatar" class="avatar-md rounded-pill"
+                         src="@(string.IsNullOrEmpty(item.UserIcon) ? "/images/default-avatar.png" : item.UserIcon)"
+                         style="width: 40px; height: 40px; object-fit: cover;">
+    
+                    <div>
+                        @* 2. 會員名稱 *@
+                        <h6 class="mb-1">
+                            @item.UserName
+                        </h6>
+                        @* 3. 會員 ID *@
+                        <p class="fs-12 mb-0 text-muted">
+                            ID:
+                            <span class="fw-semibold">@item.UserID</span>
+                        </p>
+                    </div>
+                </td>
+                <td>
+                    @if (item.IsDeleted)
+                    {           
+                        <span class="text-decoration-line-through text-muted">@item.Content</span>
+                        <br />
+                        <span class="text-secondary">本留言因違反社群守則，已被系統刪除 </span>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.Content)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreateAt)
+                </td>
+                <td>
+                    @if (!item.IsDeleted) // 只有未刪除的留言才顯示回復和刪除連結
+                    {
+                        <a asp-action="Replay" asp-route-id="@item.CommentID" class="btn btn-sm btn-outline-primary">回覆</a>
+                        <a asp-action="Delete" asp-route-id="@item.CommentID"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('確定要刪除這條留言嗎？')">刪除</a>
+                    }
+                    else
+                    {
+                        <a asp-action="Restore" asp-route-id="@item.CommentID"
+                           class="btn btn-sm btn-success"
+                           onclick="return confirm('確定要還原這條留言嗎？')">還原</a>                 
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

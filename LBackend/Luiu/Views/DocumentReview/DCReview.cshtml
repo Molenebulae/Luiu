@@ -1,0 +1,94 @@
+﻿@model IEnumerable<Luiu.ViewModels.ReviewViewModel>
+
+@{
+    ViewData["Title"] = "紀錄審核管理";
+    // 抓取 Controller 傳過來的目前狀態，預設為 0
+    int currentStatus = ViewBag.CurrentStatus ?? 0;
+}
+
+<h2 class="mt-4 mb-4">📝 遊記審核管理</h2>
+
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+        <form asp-action="DCReview" method="get" class="d-flex align-items-center w-25">
+            <label class="me-2 fw-bold text-nowrap">狀態篩選：</label>
+            
+            <select name="statusFilter" class="form-select" onchange="this.form.submit()">
+                <option value="0" selected="@(currentStatus == 0)">待審核</option>
+                <option value="1" selected="@(currentStatus == 1)">已通過</option>
+                <option value="2" selected="@(currentStatus == 2)">已退回</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive shadow-sm">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>編號</th>
+                <th>紀錄標題</th>
+                <th>作者</th>
+                <th>提交日期</th>
+                <th>狀態</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.MemoryID</td>
+                        <td>@item.Title</td>
+                        <td>@item.AuthorName</td>
+                        <td>@item.SubmitDate</td>
+                        <td>
+                            @if (item.Status == "待審核")
+                            {
+                                <span class="badge bg-warning text-dark">待審核</span>
+                            }
+                            else if (item.Status == "已通過")
+                            {
+
+                                <span class="badge bg-success">已通過</span>
+                            }
+                            else
+                            {
+
+                                <span class="badge bg-danger">已退回</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Status == "待審核")
+                            {
+                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                    <input type="hidden" name="memoryId" value="@item.MemoryID" />
+                                    <input type="hidden" name="status" value="1" />
+                                    <button type="submit" class="btn btn-success btn-sm">✔️ 通過</button>
+                                </form>
+
+                                <form asp-action="UpdateStatus" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="memoryId" value="@item.MemoryID" />
+                                    <input type="hidden" name="status" value="2" />
+                                    <button type="submit" class="btn btn-danger btn-sm">❌ 退回</button>
+                                </form>
+                            }
+
+                            <a asp-action="MemoryDetails" asp-route-id="@item.MemoryID" class="btn btn-info btn-sm text-white ms-1">查看</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        目前沒有 @(currentStatus == 0 ? "待審核" : (currentStatus == 1 ? "已通過" : "已退回")) 的紀錄喔！
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

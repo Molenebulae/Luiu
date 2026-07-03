@@ -1,0 +1,59 @@
+{
+  "name": "luiufrontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prod": "vite --mode production",
+    "build": "vite build",
+    "preview": "vite preview",
+    "preview:cloud": "vite build --mode preview_cloud && vite preview --mode preview_cloud",
+    "lint": "run-s lint:*",
+    "lint:oxlint": "oxlint . --fix",
+    "lint:eslint": "eslint . --fix --cache",
+    "format": "prettier --write --experimental-cli src/"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.2.0",
+    "@fortawesome/free-regular-svg-icons": "^7.2.0",
+    "@fortawesome/free-solid-svg-icons": "^7.2.0",
+    "@fortawesome/vue-fontawesome": "^3.2.0",
+    "@googlemaps/js-api-loader": "^2.0.2",
+    "air-datepicker": "^3.6.0",
+    "axios": "^1.16.1",
+    "bootstrap": "^5.3.5",
+    "bootstrap-icons": "^1.13.1",
+    "dropzone": "^6.0.0-beta.2",
+    "jquery": "^4.0.0",
+    "owl.carousel": "^2.3.4",
+    "pinia": "^3.0.4",
+    "plyr": "^3.8.4",
+    "remixicon": "^4.9.1",
+    "simplebar": "^6.3.3",
+    "sortablejs": "^1.15.7",
+    "sweetalert2": "^11.26.24",
+    "swiper": "^12.1.4",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-oxlint": "~1.60.0",
+    "eslint-plugin-vue": "~10.8.0",
+    "globals": "^17.5.0",
+    "npm-run-all2": "^8.0.4",
+    "oxlint": "~1.60.0",
+    "prettier": "3.8.3",
+    "sass": "^1.99.0",
+    "vite": "^8.0.8",
+    "vite-plugin-vue-devtools": "^8.1.1"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

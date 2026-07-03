@@ -1,0 +1,31 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<!-- Search Modal -->
+<div aria-hidden="true" aria-labelledby="searchModalLabel" class="modal fade search-modal" data-bs-backdrop="static"
+     data-bs-keyboard="false" id="searchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header d-block">
+                <div class="form-icon">
+                    <input class="form-control form-control-icon" id="searchInputInModal" placeholder="Search" required=""
+                           type="text" />
+                    <div class="search-btn w-44px">
+                        <i class="ri-search-line text-muted fs-16">
+                        </i>
+                    </div>
+                    <button aria-label="Close"
+                            class="btn-close position-absolute end-0 top-50 translate-middle-y d-inline-block m-0"
+                            data-bs-dismiss="modal" type="button">
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" data-simplebar="" id="list-items">
+                <ul class="list-unstyled mb-0" id="searchList">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

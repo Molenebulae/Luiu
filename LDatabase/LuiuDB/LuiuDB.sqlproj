@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" Sdk="Microsoft.Build.Sql/2.0.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>LuiuDB</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{211d1d35-228c-455f-9429-a25a360d57bb}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql170DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>LuiuDB</RootNamespace>
+    <AssemblyName>LuiuDB</AssemblyName>
+    <ModelCollation>1028,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFramework>net472</TargetFramework>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>Chinese_Taiwan_Stroke_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <EnableDefaultSqlItems>false</EnableDefaultSqlItems>
+    <GenerateCreateScript>False</GenerateCreateScript>
+    <IncludeSchemaNameInFileName>False</IncludeSchemaNameInFileName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="Seeds" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
+    <None Include="LuiuDB.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\tAdminLogs.sql" />
+    <Build Include="dbo\Tables\tCategories.sql" />
+    <Build Include="dbo\Tables\tCollects.sql" />
+    <Build Include="dbo\Tables\tCommentLikes.sql" />
+    <Build Include="dbo\Tables\tComments.sql" />
+    <Build Include="dbo\Tables\tEventRanks.sql" />
+    <Build Include="dbo\Tables\tEvents.sql" />
+    <Build Include="dbo\Tables\tEventSpotRelations.sql" />
+    <Build Include="dbo\Tables\tEventTagRelations.sql" />
+    <Build Include="dbo\Tables\tExpenses.sql" />
+    <Build Include="dbo\Tables\tExpensesSplits.sql" />
+    <Build Include="dbo\Tables\tFollows.sql" />
+    <Build Include="dbo\Tables\tLoginLogs.sql" />
+    <Build Include="dbo\Tables\tMembers.sql" />
+    <Build Include="dbo\Tables\tMemories.sql" />
+    <Build Include="dbo\Tables\tMemoryDays.sql" />
+    <Build Include="dbo\Tables\tMemoryStops.sql" />
+    <Build Include="dbo\Tables\tOAuthLogins.sql" />
+    <Build Include="dbo\Tables\tPackingCategories.sql" />
+    <Build Include="dbo\Tables\tPackingItems.sql" />
+    <Build Include="dbo\Tables\tPostLikes.sql" />
+    <Build Include="dbo\Tables\tPosts.sql" />
+    <Build Include="dbo\Tables\tPostTags.sql" />
+    <Build Include="dbo\Tables\tReferences.sql" />
+    <Build Include="dbo\Tables\tRegionRanks.sql" />
+    <Build Include="dbo\Tables\tRegions.sql" />
+    <Build Include="dbo\Tables\tReports.sql" />
+    <Build Include="dbo\Tables\tRole.sql" />
+    <Build Include="dbo\Tables\tSpotMonthlySnaps.sql" />
+    <Build Include="dbo\Tables\tSpotRanks.sql" />
+    <Build Include="dbo\Tables\tSpots.sql" />
+    <Build Include="dbo\Tables\tSpotTagRelations.sql" />
+    <Build Include="dbo\Tables\tSpotTypeRelations.sql" />
+    <Build Include="dbo\Tables\tSpotTypes.sql" />
+    <Build Include="dbo\Tables\tSystemConfigs.sql" />
+    <Build Include="dbo\Tables\tTags.sql" />
+    <Build Include="dbo\Tables\tTripCollaborators.sql" />
+    <Build Include="dbo\Tables\tTripComments.sql" />
+    <Build Include="dbo\Tables\tTripDetails.sql" />
+    <Build Include="dbo\Tables\tTrips.sql" />
+    <Build Include="dbo\Tables\tTripSuggests.sql" />
+    <Build Include="dbo\Tables\tTypes.sql" />
+    <Build Include="dbo\Tables\tUserPackingLists.sql" />
+    <Build Include="dbo\Tables\tVerifications.sql" />
+    <Build Include="dbo\Tables\tViolationRules.sql" />
+    <Build Include="dbo\Tables\tSystemLogs.sql" />
+    <Build Include="dbo\Tables\SystemLogs.sql" />
+    <Build Include="dbo\Tables\tRouteCache.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LuiuDB_2.publish.xml" />
+  </ItemGroup>
+</Project>

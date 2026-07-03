@@ -1,0 +1,15 @@
+.accordion-button {
+    padding-left: 1.5rem;
+    font-weight: bold;
+}
+
+.accordion-arrow {
+    transition: 0.3s ease;
+    display: inline-block;
+    /* font-size: 1.2rem; */
+}
+
+.accordion-button:not(.collapsed) .accordion-arrow {
+    transform: rotate(90deg);
+    color: car(--bs-primary);
+}

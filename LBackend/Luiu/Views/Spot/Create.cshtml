@@ -1,0 +1,557 @@
+@model Luiu.Models.TSpot
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<div>
+    <h2 class="my-2">新增景點</h2>
+</div>
+<div>
+    <div class="my-2">
+        <a asp-action="List" class="btn btn-outline-secondary btn-sm">回到列表</a>
+    </div>
+    <div class="container-fluid py-3">
+        <div class="row">
+            <div class="col-md-5">
+                <div id="map-container" style="position: relative; height: 85vh; border-radius: 10px; overflow: hidden; border: 1px solid #dee2e6;">
+                    <div id="map" style="height: 100%; width: 100%;"></div>
+                </div>
+            </div>
+
+            <div class="col-md-7" style="">
+                <form id="createSpotForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">所屬地區</label>
+                        @Html.DropDownList("RegionId", (SelectList)ViewBag.RegionList, "--- 請選擇地區 ---", new { @class = "form-select", required = "required" })
+                    </div>
+
+                    <div id="types-hidden-container"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">景點名稱</label>
+                        <input asp-for="SpotName" class="form-control" placeholder="點擊地圖景點自動填入" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">經度</label>
+                            <input asp-for="Longitude" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">緯度</label>
+                            <input asp-for="Latitude" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">地址</label>
+                        <input asp-for="Address" class="form-control" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">電話</label>
+                            <input asp-for="Tel" class="form-control" />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">評分</label>
+                            <input asp-for="Rating" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">評論數</label>
+                            <input asp-for="UserRatingCount" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">官方網站</label>
+                        <input asp-for="OfficialUrl" class="form-control" />
+                        <input type="hidden" asp-for="GoogleMapUrl" />
+                    </div>
+
+                    <input type="hidden" asp-for="GoogleMapId" />
+                    <input type="hidden" asp-for="OpeningHoursJson" />
+                    <input type="hidden" asp-for="PriceLevel" />
+
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header bg-secondary text-white px-5 py-3 fs-6">營業時間設定</div>
+                        <div class="card-body" id="opening-hours-editor">
+                            @{
+                                string[] dayNames = { "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六" };
+                            }
+                            @for (int i = 0; i < 7; i++)
+                            {
+                                <div class="day-row mb-3 p-2 border-bottom" data-day="@i">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h6 class="mb-0 me-3" style="width: 80px;">@dayNames[i]</h6>
+                                        <div class="form-check form-switch me-3">
+                                            <input class="form-check-input is-24h" type="checkbox" id="24h-@i">
+                                            <label class="form-check-label" for="24h-@i">24 小時營業</label>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary add-slot-btn">
+                                            <i class="fas fa-plus"></i> 新增時段
+                                        </button>
+                                    </div>
+                                    <div class="slots-container d-flex flex-wrap gap-2"></div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">地點相片</label>
+                        <div id="photo-preview-container" class="d-flex flex-wrap gap-2 border p-2 bg-light" style="min-height: 100px; border-radius: 8px;">
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="row">
+                        <div class="col-6">
+                            <a asp-action="List" class="btn btn-outline-secondary w-100 py-2">取消</a>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary w-100 py-2">
+                                <i class="fas fa-save me-2"></i>確認新增
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let map, service, marker;
+
+        async function bootstrapMap() {
+            try {
+                const response = await fetch('/Spot/GetMapsApiKey');
+                const apiKey = await response.text();
+
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap&language=zh-TW&region=TW`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            } catch (err) {
+                console.error("Key 載入失敗", err);
+            }
+        }
+
+        function initMap() {
+            const centerPos = { lat: 23.973875, lng: 120.982025 };
+
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 7.5,
+                center: centerPos,
+                clickableIcons: true
+            });
+
+            marker = new google.maps.Marker({
+                map: map
+            });
+
+            map.addListener("click", async (e) => {
+                if (e.placeId) {
+                    e.stop();
+                    console.log("偵測到點擊，PlaceID:", e.placeId);
+
+                    await fetchPlaceFromBackend(e.placeId);
+                }
+            });
+        }
+
+        async function fetchPlaceFromBackend(pid) {
+            try {
+                const response = await fetch(`/Spot/GetPlaceDetails?placeId=${pid}`);
+
+                if (!response.ok) {
+                    throw new Error(`伺服器回傳錯誤: ${response.status}`);
+                }
+
+                const place = await response.json();
+                const apiKey = await (await fetch('/Spot/GetMapsApiKey')).text();
+                console.log("成功取得景點資料:", place);
+
+                // --- 填入資料 ---
+
+                document.getElementById("SpotName").value = place.displayName?.text || "";
+                document.getElementById("Address").value = place.formattedAddress || "";
+                document.getElementById("Tel").value = place.nationalPhoneNumber || "";
+
+                if (place.location) {
+                    const lat = place.location.latitude;
+                    const lng = place.location.longitude;
+                    document.getElementById("Latitude").value = lat;
+                    document.getElementById("Longitude").value = lng;
+
+                    const newPos = { lat: lat, lng: lng };
+                    map.panTo(newPos);
+                    marker.setPosition(newPos);
+                }
+
+                document.getElementById("Rating").value = place.rating || 0;
+                document.getElementById("UserRatingCount").value = place.userRatingCount || 0;
+                document.getElementById("GoogleMapId").value = place.id || "";
+
+                document.getElementById("OfficialUrl").value = place.websiteUri || "";
+                document.getElementById("GoogleMapUrl").value = place.googleMapsLinks?.placeUri || "";
+
+                if (place.regularOpeningHours && place.regularOpeningHours.periods)
+                {
+                    const periodsJson = JSON.stringify(place.regularOpeningHours.periods);
+                    document.getElementById("OpeningHoursJson").value = periodsJson;
+                    populateOpeningHours(periodsJson);
+                }
+                else
+                {
+                    document.getElementById("OpeningHoursJson").value = "";
+                    populateOpeningHours("");
+                }
+
+                document.getElementById("PriceLevel").value = place.priceLevel || "";
+
+                const typeContainer = document.getElementById("types-hidden-container");
+                typeContainer.innerHTML = "";
+                if (place.types && Array.isArray(place.types)) {
+                    place.types.forEach((type, index) => {
+                        const hiddenInput = document.createElement("input");
+                        hiddenInput.type = "hidden";
+                        hiddenInput.name = `googleTypes[${index}]`;
+                        hiddenInput.value = type;
+                        typeContainer.appendChild(hiddenInput);
+                    });
+                }
+
+                // 處理相片預覽
+                const photoContainer = document.getElementById("photo-preview-container");
+                photoContainer.innerHTML = "";
+
+                if (place.photos && place.photos.length > 0) {
+                    place.photos.forEach((photo, index) => {
+                        const wrapper = document.createElement("div");
+                        wrapper.className = "photo-item-wrapper me-2 mb-2";
+                        wrapper.style.cssText = "cursor: pointer; position: relative; transition: 0.3s;";
+
+                        const img = document.createElement("img");
+                        img.src = `https://places.googleapis.com/v1/${photo.name}/media?key=${apiKey}&maxWidthPx=300&maxHeightPx=300`;
+                        img.style.cssText = "width: 120px; height: 120px; object-fit: cover; border-radius: 5px; border: 3px solid transparent; transition: all 0.2s;";
+
+                        img.style.opacity = "0.4";
+
+                        const hiddenInput = document.createElement("input");
+                        hiddenInput.type = "hidden";
+                        hiddenInput.name = "selectedPhotoNames";
+                        hiddenInput.value = photo.name;
+                        hiddenInput.disabled = true;
+
+                        // 點擊事件：切換選取狀態
+                        wrapper.onclick = function() {
+                            if (hiddenInput.disabled) {
+                                hiddenInput.disabled = false;
+                                img.style.opacity = "1";
+                                img.style.borderColor = "#0d6efd";
+                                img.style.boxShadow = "0 0 8px rgba(13,110,253,0.5)";
+                            } else {
+                                hiddenInput.disabled = true;
+                                img.style.opacity = "0.4";
+                                img.style.borderColor = "transparent";
+                                img.style.boxShadow = "none";
+                            }
+                        };
+
+                        wrapper.appendChild(img);
+                        wrapper.appendChild(hiddenInput);
+                        photoContainer.appendChild(wrapper);
+                    });
+                } else {
+                    photoContainer.innerHTML = '<div class="text-muted p-3">此地點暫無 Google 提供之相片。</div>';
+                }
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: `載入成功：${place.displayName?.text || "未知名稱"}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+            } catch (err) {
+                console.error("fetchPlaceFromBackend 發生錯誤:", err);
+                Swal.fire('抓取失敗', '無法從後端代理取得景點詳細資料，請檢查網路或 API 設定。', 'error');
+            }
+        }
+
+        // 輔助函式：將 Google 的 hour/minute 轉為 "HH:mm" 格式
+        function formatTime(h, m) {
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        // 1. 解析 OpeningHours 並填充介面
+        function populateOpeningHours(periodsJson) {
+            const editor = document.getElementById("opening-hours-editor");
+            editor.querySelectorAll('.slots-container').forEach(c => c.innerHTML = "");
+            editor.querySelectorAll('.is-24h').forEach(c => {
+                c.checked = false;
+                c.disabled = false;
+                c.closest('.day-row').classList.remove('border', 'border-danger');
+            });
+
+            if (!periodsJson || periodsJson === "[]" || periodsJson === "") return;
+
+            const periods = JSON.parse(periodsJson);
+
+            // 判斷是否為「全年 24 小時無休」( periods:[ {"open":{"day":0,"hour":0,"minute":0}} ] )
+            const isAlwaysOpen = periods.length === 1 &&
+                                 periods[0].open.day === 0 &&
+                                 periods[0].open.hour === 0 &&
+                                 periods[0].open.minute === 0 &&
+                                 !periods[0].close;
+
+            if (isAlwaysOpen) {
+                editor.querySelectorAll('.is-24h').forEach(c => c.checked = true);
+                return; // 全年無休則直接結束解析
+            }
+
+            // 若不是全年無休，則按天填入時段
+            periods.forEach(p => {
+                const day = p.open.day;
+                const row = editor.querySelector(`.day-row[data-day="${day}"]`);
+                if (!row) return;
+
+                const container = row.querySelector('.slots-container');
+                const is24hCheck = row.querySelector('.is-24h');
+
+                // 判斷單日 24 小時營業
+                if (p.open.hour === 0 && p.open.minute === 0 && !p.close) {
+                    is24hCheck.checked = true;
+                    return;
+                }
+
+                const openTime = formatTime(p.open.hour, p.open.minute);
+                const closeTime = p.close ? formatTime(p.close.hour, p.close.minute) : "";
+                addTimeSlotUI(container, openTime, closeTime);
+            });
+        }
+
+        // 2. 動態新增時段 UI (預設不帶值，由 API 傳入)
+        function addTimeSlotUI(container, openVal = "", closeVal = "") {
+            const slotDiv = document.createElement("div");
+            slotDiv.className = "d-flex align-items-center bg-white border rounded p-1 mb-1 shadow-sm time-slot-item";
+
+            // 如果是手動新增按鈕點擊的 (沒有代入 openVal)，則預設給空或一個基準值
+            const finalOpen = openVal || "09:00";
+            const finalClose = closeVal || "18:00";
+
+            slotDiv.innerHTML = `
+                <input type="time" class="form-control form-control-sm border-0 open-val" value="${finalOpen}" required>
+                <span class="mx-1">-</span>
+                <input type="time" class="form-control form-control-sm border-0 close-val" value="${finalClose}" required>
+                <button type="button" class="btn btn-sm text-danger ms-1 remove-slot" title="刪除時段">×</button>
+            `;
+
+            // 驗證邏輯：確保起始 < 結束
+            const openInp = slotDiv.querySelector('.open-val');
+            const closeInp = slotDiv.querySelector('.close-val');
+            const validate = () => {
+                if (openInp.value && closeInp.value && openInp.value >= closeInp.value) {
+                    Swal.fire({ toast: true, icon: 'warning', title: '結束時間必須大於起始時間', position: 'top' });
+                    closeInp.value = "";
+                }
+            };
+            openInp.onchange = validate;
+            closeInp.onchange = validate;
+
+            container.appendChild(slotDiv);
+        }
+
+        // 監聽：點擊新增按鈕
+        document.querySelectorAll('.add-slot-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const row = e.target.closest('.day-row');
+                if (row.querySelector('.is-24h').checked) return;
+                addTimeSlotUI(row.querySelector('.slots-container'));
+            };
+        });
+
+        // 監聽：刪除時段
+        document.getElementById("opening-hours-editor").addEventListener('click', (e) => {
+            if (e.target.closest('.remove-slot')) {
+                e.target.closest('.remove-slot').parentElement.remove();
+            }
+        });
+
+        // 監聽：切換 24 小時 Switch 時的行為
+        document.getElementById("opening-hours-editor").addEventListener('change', (e) => {
+            if (e.target.classList.contains('is-24h')) {
+                const row = e.target.closest('.day-row');
+                const container = row.querySelector('.slots-container');
+                const addBtn = row.querySelector('.add-slot-btn');
+
+                if (e.target.checked) {
+                    // 如果勾選 24h，清空現有時段並禁用新增按鈕
+                    container.innerHTML = "";
+                    addBtn.classList.add('disabled');
+                } else {
+                    addBtn.classList.remove('disabled');
+                }
+            }
+        });
+
+        // 3. 在 Submit 之前將 UI 轉回 Google Periods 格式
+        function serializeOpeningHours() {
+            const periods = [];
+            let hasError = false;
+            let alwaysOpenCount = 0;
+
+            document.querySelectorAll('.day-row').forEach(row => {
+                row.classList.remove('border', 'border-danger');
+                row.style.backgroundColor = "";
+
+                const day = parseInt(row.dataset.day);
+                const is24h = row.querySelector('.is-24h').checked;
+                const slotElements = row.querySelectorAll('.time-slot-item');
+
+                // 驗證 24h 與手動時段衝突
+                if (is24h && slotElements.length > 0) {
+                    hasError = true;
+                    row.classList.add('border', 'border-danger');
+                    row.style.backgroundColor = "#fff5f5";
+                }
+
+                if (is24h) {
+                    alwaysOpenCount++;
+                    periods.push({ open: { day: day, hour: 0, minute: 0 } });
+                } else {
+                    const daySlots = [];
+                    slotElements.forEach(slot => {
+                        const openVal = slot.querySelector('.open-val').value;
+                        const closeVal = slot.querySelector('.close-val').value;
+                        if (openVal && closeVal) {
+                            const [oH, oM] = openVal.split(':').map(Number);
+                            const [cH, cM] = closeVal.split(':').map(Number);
+                            daySlots.push({ day, oH, oM, cH, cM });
+                        }
+                    });
+
+                    // 時段間重疊驗證
+                    daySlots.sort((a, b) => (a.oH * 60 + a.oM) - (b.oH * 60 + b.oM));
+                    for (let i = 0; i < daySlots.length - 1; i++) {
+                        const currentEnd = daySlots[i].cH * 60 + daySlots[i].cM;
+                        const nextStart = daySlots[i+1].oH * 60 + daySlots[i+1].oM;
+                        if (currentEnd > nextStart) {
+                            hasError = true;
+                            row.classList.add('border', 'border-danger');
+                            row.style.backgroundColor = "#fff5f5";
+                        }
+                    }
+
+                    daySlots.forEach(s => {
+                        periods.push({
+                            open: { day: s.day, hour: s.oH, minute: s.oM },
+                            close: { day: s.day, hour: s.cH, minute: s.cM }
+                        });
+                    });
+                }
+            });
+
+            if (hasError) {
+                Swal.fire('驗證失敗', '營業時段發生重疊或設定衝突，請修正紅框處。', 'error');
+                return false;
+            }
+
+            // 全年無休格式改成跟place api(new)相同
+            let finalJsonData = periods;
+            if (alwaysOpenCount === 7) {
+                finalJsonData = [{ open: { day: 0, hour: 0, minute: 0 } }];
+            }
+
+            document.getElementById("OpeningHoursJson").value = JSON.stringify(finalJsonData);
+            return true;
+        }
+
+
+
+        // 啟動流程
+        bootstrapMap();
+
+        // AJAX 提交表單邏輯
+        document.getElementById("createSpotForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            handleSave(false); // 預設不是強制更新
+        });
+
+        async function handleSave(forceUpdate) {
+            const googleId = document.getElementById("GoogleMapId").value;
+
+            // 1. 檢查 GoogleMapId 是否為空
+            if (!googleId) {
+                Swal.fire('提示', '請先點選地圖上的景點再手動修改。', 'info');
+                return;
+            }
+
+            // 2. 檢查營業時間有無重疊並序列化
+            const isTimeValid = serializeOpeningHours();
+            if (!isTimeValid) return;
+
+            const formData = new FormData(document.getElementById("createSpotForm"));
+            if (forceUpdate) formData.append("forceUpdate", "true");
+
+            try {
+                const response = await fetch('/Spot/Create', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire('成功', result.message, 'success').then(() => {
+                        // 重設顯示內容，不重新讀入地圖
+                        document.getElementById("createSpotForm").reset();
+
+                        document.getElementById("GoogleMapId").value = "";
+                        document.getElementById("OpeningHoursJson").value = "";
+                        document.getElementById("PriceLevel").value = "";
+                        document.getElementById("types-hidden-container").innerHTML = "";
+                        document.getElementById("photo-preview-container").innerHTML = "";
+                        populateOpeningHours("[]");
+
+                        if (marker) marker.setPosition(null);
+
+                        document.getElementById("RegionId").selectedIndex = 0;
+                    });
+                }
+                else if (result.isDuplicate) {
+                    // 處理重複景點的詢問
+                    Swal.fire({
+                        title: '景點已存在',
+                        text: result.message,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: '是的，更新它',
+                        cancelButtonText: '取消'
+                    }).then((choice) => {
+                        if (choice.isConfirmed) {
+                            handleSave(true); // 使用者同意更新，觸發強制更新
+                        }
+                    });
+                }
+                else {
+                    Swal.fire('失敗', result.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('錯誤', '連線異常', 'error');
+            }
+        }
+    </script>
+}

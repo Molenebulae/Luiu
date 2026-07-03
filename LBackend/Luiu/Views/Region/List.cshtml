@@ -1,0 +1,145 @@
+﻿@model IEnumerable<Luiu.Models.TRegion>
+
+@{
+    ViewBag.Title = "地區管理";
+}
+
+<div>
+    <h2 class="my-2">景點地區管理</h2>
+</div>
+
+<div>
+    <div class="my-2">
+        <a asp-controller="Spot" asp-action="List" class="btn btn-outline-primary btn-sm">返回景點列表</a>
+    </div>
+
+    <div class="row g-3 align-items-center my-2">
+        <div class="col-auto">
+            <input type="text" id="newRegionName" class="form-control" placeholder="輸入新地區名稱" />
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-outline-primary" onclick="doCreate()">新增地區</button>
+        </div>
+    </div>
+
+    <hr />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>序號</th>
+                <th>地區名稱</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int count = 0;
+                foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td class="fw-bold">@item.RegionName</td>
+                        <td>
+                            <button class="btn btn-outline-success btn-sm" onclick="doEdit(@item.RegionId, '@item.RegionName')">修改</button>
+                            <button class="btn btn-outline-danger btn-sm ms-3" onclick="doDelete(@item.RegionId, '@item.RegionName')">刪除</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // --- 新增 ---
+        async function doCreate() {
+            const name = document.getElementById("newRegionName").value;
+            if (!name) return Swal.fire('提示', '請輸入名稱', 'warning');
+
+            try {
+                const response = await fetch('/Region/Create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `regionName=${encodeURIComponent(name)}`
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '無法新增',
+                        text: result.message
+                    });
+                }
+            } catch (err) {
+                Swal.fire('錯誤', '連線異常，請稍後再試', 'error');
+            }
+        }
+
+        // --- 修改 ---
+        function doEdit(id, oldName) {
+            Swal.fire({
+                title: '修改地區名稱',
+                input: 'text',
+                inputValue: oldName,
+                showCancelButton: true,
+                confirmButtonText: '更新',
+                cancelButtonText: '取消',
+                inputValidator: (value) => { if (!value) return '名稱不能為空！' }
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch('/Region/Edit', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: `id=${id}&newName=${encodeURIComponent(result.value.trim())}`
+                            });
+                            const res = await response.json();
+
+                            if (res.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '修改失敗',
+                                    text: res.message
+                                });
+                            }
+                        } catch (err) {
+                            Swal.fire('錯誤', '連線異常', 'error');
+                        }
+                    }
+            });
+        }
+
+        // --- 刪除 ---
+        function doDelete(id, name) {
+            Swal.fire({
+                title: `確定要刪除「${name}」嗎？`,
+                text: "刪除地區會連帶刪除該地區之中的所有景點及照片",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: '確定刪除',
+                cancelButtonText: '取消'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const response = await fetch('/Region/Delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `id=${id}`
+                    });
+                    const res = await response.json();
+                    if (res.success) location.reload();
+                    else Swal.fire('錯誤', res.message, 'error');
+                }
+            });
+        }
+    </script>
+}

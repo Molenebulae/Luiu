@@ -1,0 +1,194 @@
+﻿@model Luiu.Models.TPost
+
+@{
+    ViewData["Title"] = "Detail";
+}
+
+<div class="container mt-3">
+
+    <div class="card shadow-sm">
+      
+        <!-- 🔹 Header -->
+        <div id="btn-group" style="position:absolute; top:10px; right:15px;">
+
+            <button type="button" id="btn-edit-toggle" class="btn btn-sm btn-outline-primary me-2">
+                編輯
+            </button>
+
+            <!-- 🔥 軟刪除按鈕 -->
+            <form asp-action="Delete" asp-controller="Forum" method="post" style="display:inline;">
+                <input type="hidden" name="id" value="@Model.PostId" />
+
+                <button type="submit"
+                        class="btn btn-sm @(Model.IsDelete ? "btn-success" : "btn-danger") me-2"
+                        onclick="return confirm('確定要執行此操作嗎？');">
+
+                    @(Model.IsDelete ? "還原" : "刪除")
+                </button>
+            </form>
+
+            <a href="/Forum/Forumview" class="btn btn-sm btn-outline-secondary">
+                ✕
+            </a>
+
+        </div>
+        <div class="card-body">
+            <h4 class="mb-1">@Model.PostTitle</h4>
+            <!-- ⭐ 會員 -->
+            <div>
+                <img src="@Model.Member?.IconUrl"
+                     class="avatar-md rounded-pill" /> @Model.Member?.UserId
+            
+            </div>
+            
+
+            <!-- ⭐ 分類 -->
+            <div id="category-view">
+                @Model.Category?.CategoryName @Model.PostTime.ToString("yyyy-MM-dd HH:mm")
+            </div>
+        
+        </div>
+
+        <!-- 🔹 Body -->
+        <div class="card-body" style="min-height: 400px;">
+
+            <form asp-action="Detail" asp-controller="Forum" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="PostId" />
+
+                <!-- 閱讀 -->
+                <div id="view-mode">
+                    <div style="white-space: pre-line; font-size:16px; line-height:1.8;">
+                        @Model.PostContent
+                    </div>
+                </div>
+
+                <!-- 編輯 -->
+                <div id="edit-mode" style="display:none;">
+
+                    <div class="mb-3">
+                        <label>標題</label>
+                        <input asp-for="PostTitle" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label>分類（地區）</label>
+                        @Html.DropDownListFor(model => model.CategoryId,
+                            new SelectList(ViewBag.Categories, "Value", "Text", Model.CategoryId),
+                            "請選擇分類",
+                            new { @class = "form-select" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label>內容</label>
+                        <textarea asp-for="PostContent" class="form-control" style="height:300px;"></textarea>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" id="btn-cancel" class="btn btn-secondary">取消</button>
+                        <button type="submit" class="btn btn-success">儲存</button>
+                    </div>
+
+                </div>
+
+            </form>
+
+            <hr />
+            <form asp-action="AddComment" asp-controller="Forum" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PostId" value="@Model.PostId" />
+
+                <div class="mb-2">
+                    <textarea name="CommentContent" class="form-control" placeholder="輸入留言..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-sm">
+                    送出留言
+                </button>
+            </form>
+            
+            <hr />
+
+            <h5>留言</h5>
+
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                foreach (var c in Model.Comments.OrderByDescending(x => x.CommentTime))
+                {
+                    <div class="border rounded p-2 mb-2 @(c.IsDelete ? "text-muted bg-light" : "")">
+
+                        <!-- ⭐ 留言者 -->
+                        <strong>@c.Member?.UserId</strong>
+
+                        <!-- ⭐ 時間 -->
+                        <small class="text-muted">
+                            @c.CommentTime.ToString("yyyy-MM-dd HH:mm")
+                        </small>
+
+                        <!-- ⭐ 內容 -->
+                        <div class="@(c.IsDelete ? "text-muted fst-italic" : "")">
+                            @c.CommentContent
+
+                            @if (c.IsDelete)
+                            {
+                                <span class="ms-2">(已刪除)</span>
+                            }
+                        </div>
+
+                        <!-- ⭐ 刪除 / 恢復按鈕 -->
+                        <form asp-action="ToggleCommentDelete" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@c.CommentId" />
+                            <input type="hidden" name="postId" value="@Model.PostId" />
+
+                            <button type="submit"
+                                    class="btn btn-sm @(c.IsDelete ? "btn-success" : "btn-danger") mt-1">
+                                @(c.IsDelete ? "恢復" : "刪除")
+                            </button>
+                        </form>
+
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">目前沒有留言</p>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const btnEdit = document.getElementById('btn-edit-toggle');
+        const btnCancel = document.getElementById('btn-cancel');
+
+        const viewMode = document.getElementById('view-mode');
+        const editMode = document.getElementById('edit-mode');
+
+        const btnGroup = document.getElementById('btn-group');
+        const categoryView = document.getElementById('category-view');
+
+        // ✏️ 進入編輯
+        btnEdit.addEventListener('click', function () {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            btnGroup.style.display = 'none';
+
+            if (categoryView) categoryView.style.display = 'none'; // ⭐ 隱藏分類
+        });
+
+        // ❌ 取消編輯
+        btnCancel.addEventListener('click', function () {
+            viewMode.style.display = 'block';
+            editMode.style.display = 'none';
+            btnGroup.style.display = 'block';
+
+            if (categoryView) categoryView.style.display = 'block'; // ⭐ 顯示回來
+        });
+
+    });
+</script>

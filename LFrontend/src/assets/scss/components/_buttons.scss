@@ -1,0 +1,94 @@
+/* _luiu-buttons.scss */
+
+.luiu-btn {
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 50rem;
+  padding: 0.5rem 1.5rem;
+  // 佈局
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // 互動
+  cursor: pointer;
+  border: 1px solid transparent;
+  // 動畫
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.5s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0; // 初始寬度為 0
+    height: 100%;
+    transition: width 0.5s ease; // 平滑伸展
+    z-index: -1; // 確保在文字下方
+  }
+
+  &:hover {
+    &::before {
+      width: 100%; // Hover 時撐滿整個按鈕寬度
+    }
+  }
+}
+
+// 顏色表
+$luiu-color-map: (
+  'primary': $primary,
+  'secondary': $secondary,
+  'dark': $dark,
+  'danger': $danger,
+  'light': $light,
+);
+
+@each $name, $color in $luiu-color-map {
+  .luiu-btn-#{$name} {
+    @extend .luiu-btn;
+    background-color: $color;
+    border-color: $color;
+    color: if($name == 'light', $dark, $white);
+
+    &::before {
+      // 根據按鈕顏色決定填充色
+      background-color: if($name == 'light', $primary, $white);
+    }
+
+    &:hover {
+      color: if($name == 'light', $white, $color) !important;
+    }
+  }
+}
+
+// outline 樣式
+@each $name, $color in $luiu-color-map {
+  .luiu-btn-outline-#{$name} {
+    @extend .luiu-btn;
+    background-color: transparent;
+    border-color: $color;
+    color: $color;
+
+    // 設定偽元素填充背景色
+    &::before {
+      background-color: $color;
+    }
+
+    &:hover {
+      color: $white !important; // Hover 時文字變白（或 $text-inverse）
+      // border-color 保持不變，因為填充色會蓋滿內部
+
+      // 增加一點點陰影讓按鈕更立體（可選）
+      box-shadow: 0 4px 10px rgba($color, 0.2);
+    }
+  }
+}
+
+.luiu-btn-sm {
+  padding: 0.35rem 1rem; // 縮小垂直與水平距離
+  font-size: 0.875rem; // 稍微縮小字體
+}

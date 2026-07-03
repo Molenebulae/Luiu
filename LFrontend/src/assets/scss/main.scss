@@ -1,0 +1,16 @@
+// 載入變數檔
+@import 'variable';
+
+// 載入 bootstrap 原始碼
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// 載入第三方套件
+@import 'swiper/css';
+@import 'swiper/css/bundle';
+@import 'simplebar/dist/simplebar.css';
+@import 'remixicon/fonts/remixicon.css'; //
+
+// 自訂義 class style
+@import './components/backend-override.scss';
+@import './components/link';

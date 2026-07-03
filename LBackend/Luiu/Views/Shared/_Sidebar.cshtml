@@ -1,0 +1,193 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<aside class="pe-app-sidebar" id="sidebar">
+    <div class="pe-app-sidebar-logo px-6 d-flex align-items-center position-relative">
+        <!--begin::Brand Image-->
+        <a class="d-flex align-items-end logo-main" href="index.html">
+            <img alt="Dark Logo" class="logo-dark" height="35" src="assets/images/logo-md.png" width="34" />
+            <img alt="Light Logo" class="logo-light" height="35" src="assets/images/logo-md-light.png" width="34" />
+            <h3 class="text-body-emphasis fw-bolder mb-0 ms-1">
+                LUIU
+            </h3>
+        </a>
+        <button class="btn btn-sm p-0 fs-16 text-body-emphasis ms-auto float-end d-none icon-hover-btn d-none"
+                id="sidebarDefaultArrow" type="button">
+            <i class="ri-arrow-right-line fs-5">
+            </i>
+        </button>
+        <!--end::Brand Image-->
+    </div>
+    <nav class="pe-app-sidebar-menu nav nav-pills" data-simplebar="" id="sidebar-simplebar">
+        <div class="d-flex align-items-start flex-column w-100">
+            <ul class="pe-main-menu list-unstyled" id="main-sidebar-menu">
+                <!-- Main Menu -->
+                <li class="pe-menu-title">
+                    主要系統
+                </li>
+                <!-- 會員管理 -->
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="collapseDashboards" aria-expanded="false" class="pe-nav-link"
+                       data-bs-toggle="collapse" href="#collapseDashboards">
+                        <i class="ri-user-line pe-nav-icon">
+                        </i>
+                        <span class="pe-nav-content">
+                            會員管理
+                        </span>
+                        <i class="ri-arrow-down-s-line pe-nav-arrow">
+                        </i>
+                    </a>
+                    <ul class="pe-slide-menu collapse" id="collapseDashboards" data-bs-parent="#main-sidebar-menu">
+                        <li class="pe-slide-item">
+                            <a asp-controller="Member" asp-action="List" class="pe-nav-link">
+                                會員管理
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 景點管理 -->
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="collapseApplications" aria-expanded="false" class="pe-nav-link"
+                       data-bs-toggle="collapse" href="#collapseApplications">
+                        <i class="ri-map-pin-line"></i>
+                        <span class="pe-nav-content">
+                            景點管理
+                        </span>
+                        <i class="ri-arrow-down-s-line pe-nav-arrow">
+                        </i>
+                    </a>
+                    <ul class="pe-slide-menu collapse" id="collapseApplications" data-bs-parent="#main-sidebar-menu">
+                        <li class="pe-slide-item">
+                            <a asp-controller="Spot" asp-action="List" class="pe-nav-link">
+                                景點管理
+                            </a>
+                        </li>
+                        <li class="pe-slide-item">
+                            <a asp-controller="Event" asp-action="List" class="pe-nav-link">
+                                活動管理
+                            </a>
+                        </li>
+                        <li class="pe-slide-item">
+                            <a asp-controller="Ranking" asp-action="History" class="pe-nav-link">
+                                排行榜
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 行程管理 -->
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="collapseIcons" aria-expanded="false" class="pe-nav-link"
+                       data-bs-toggle="collapse" href="#collapseIcons">
+                        <i class="ri-quill-pen-ai-line"></i>
+                        <span class="pe-nav-content">
+                            行程管理
+                        </span>
+                        <i class="ri-arrow-down-s-line pe-nav-arrow">
+                        </i>
+                    </a>
+                    <ul class="pe-slide-menu collapse" id="collapseIcons" data-bs-parent="#main-sidebar-menu">
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" asp-controller="BackendPlan" asp-action="TripList">
+                                行程管理
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 遊記管理 -->
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="collapseMaps" aria-expanded="false" class="pe-nav-link" data-bs-toggle="collapse"
+                       href="#collapseMaps">
+                        <i class="ri-compass-3-line pe-nav-icon">
+                        </i>
+                        <span class="pe-nav-content">
+                            遊記管理
+                        </span>
+                        <i class="ri-arrow-down-s-line pe-nav-arrow">
+                        </i>
+                    </a>
+                    <ul class="pe-slide-menu collapse" id="collapseMaps" data-bs-parent="#main-sidebar-menu">
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" asp-controller="DocumentReview" asp-action="DCReview">
+                                遊記管理
+                            </a>
+                        </li>
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" asp-controller="StatisticalRecords" asp-action="Stat">
+                                遊記統計
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 論壇管理 -->
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="Forum" aria-expanded="false" class="pe-nav-link" data-bs-toggle="collapse"
+                       href="#Forum">
+                        <i class="ri-team-line"></i>
+                        <span class="pe-nav-content">
+                            論壇管理
+                        </span>
+                        <i class="ri-arrow-down-s-line pe-nav-arrow">
+                        </i>
+                    </a>
+                    <ul class="pe-slide-menu collapse" id="Forum" data-bs-parent="#main-sidebar-menu">
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" asp-controller="Forum" asp-action="ForumView">
+                                論壇管理
+                            </a>
+                        </li>
+                        <li class="pe-slide-item" id="Forum">
+                            <a class="pe-nav-link" href="auth-signin.html">
+                                統計資料
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Pages -->
+                <li class="pe-menu-title">
+                    審核系統
+                </li>
+
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="collapsePages" aria-expanded="false" class="pe-nav-link"
+                       data-bs-toggle="collapse" href="#collapsePages">
+                        <i class="ri-alarm-warning-line"></i>
+                        <span class="pe-nav-content">
+                            檢舉管理
+                        </span>
+                        <i class="ri-arrow-down-s-line pe-nav-arrow">
+                        </i>
+                    </a>
+                    <ul class="pe-slide-menu collapse" id="collapsePages">
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" href="pages-starter.html">
+                                待審核清單
+                            </a>
+                        </li>
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" href="pages-starter.html">
+                                違規紀錄查詢
+                            </a>
+                        </li>
+                        <li class="pe-slide-item">
+                            <a class="pe-nav-link" asp-controller="ViolationRule" asp-action="List">
+                                違規規則設定
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="pe-slide pe-has-sub">
+                    <a aria-controls="collapseCharts" aria-expanded="false" class="pe-nav-link"
+                       data-bs-toggle="collapse" href="#collapseCharts">
+                        <i class="ri-book-shelf-line"></i>
+                        <span class="pe-nav-content">
+                            分類管理
+                        </span>
+
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</aside>

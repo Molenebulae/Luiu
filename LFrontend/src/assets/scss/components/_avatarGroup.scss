@@ -1,0 +1,54 @@
+$avatar-size: 36px;
+$avatar-overlap: -12px; // 控制重疊程度
+$border-width: 2px;
+
+.avatar-group {
+  display: flex;
+  align-items: center;
+  // 避免容器因為重疊而寬度計算不精準，適度補一點 padding
+  padding: 5px 0;
+
+  .avatar-wrapper {
+    margin-left: $avatar-overlap;
+
+    &:first-child {
+      margin-left: 0; // 第一個不重疊
+    }
+
+    .avatar {
+      width: $avatar-size;
+      height: $avatar-size;
+      border-radius: 50%;
+      border: $border-width solid #ffffff;
+      background-color: $light; // 使用全域 $light
+      object-fit: cover;
+      display: block;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      position: relative; // 基礎定位
+
+      &:hover {
+        transform: translateY(-5px);
+        z-index: 10; // 確保 hover 時浮在最上層
+        border-color: $primary; // 使用全域 $primary (橘色)
+      }
+    }
+  }
+
+  .extra-counter {
+    width: $avatar-size;
+    height: $avatar-size;
+    border-radius: 50%;
+    background-color: $light;
+    border: $border-width solid #ffffff;
+    margin-left: $avatar-overlap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: $text-muted; // 使用全域 $text-muted
+    font-weight: bold;
+    z-index: 1; // 確保排在所有頭像之後但仍看得到
+    cursor: default;
+  }
+}

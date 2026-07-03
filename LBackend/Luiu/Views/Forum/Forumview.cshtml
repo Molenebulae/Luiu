@@ -1,0 +1,133 @@
+﻿@model IEnumerable<Luiu.Models.TPost>
+
+@{
+    ViewData["Title"] = "Forumview";
+}
+
+
+
+<div class="main-breadcrumb d-flex align-items-center my-3 position-relative">
+    <h2 class="breadcrumb-title mb-0 flex-grow-1 fs-14"> 論壇管理系統</h2>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-h-100">
+            <!--start::card-->
+            <div class="card-header d-flex align-items-center gap-3">
+                <h5 class="card-title mb-0">
+                    論壇
+                </h5>
+                
+                @using (Html.BeginForm("Forumview", "Forum", FormMethod.Post))
+                {
+                    <div class="d-flex ">
+                        <div class="d-flex gap-2">
+
+                            <!-- 正常文章 -->
+                            <a asp-action="Forumview"
+                                   asp-route-isDelete="false"
+                                   class="btn @(ViewBag.IsDelete == false ? "btn-primary" : "btn-outline-primary")">
+                                正常文章
+                            </a>
+
+                            <!-- 已刪除文章 -->
+                            <a asp-action="Forumview"
+                                   asp-route-isDelete="true"
+                                   class="btn @(ViewBag.IsDelete == true ? "btn-danger" : "btn-outline-danger")">
+                                已刪除文章
+                            </a>
+
+                            @Html.DropDownList("CategoryId",
+                            new SelectList(ViewBag.Categories, "Value", "Text", Context.Request.Query["CategoryId"]),
+                            "全部地區",
+                            new
+                            {
+                                @class = "form-select",
+                                style = "width:200px",
+                                onchange = "this.form.submit()"  
+                            })
+
+                        </div>
+                        <input type="text"
+                                name="txtKeyword"
+                                class="form-control rounded-pill me-2"
+                                style="width:350px"
+                                placeholder="Search" />
+
+                        <button type="submit" class="btn btn-primary b-0">
+                            搜尋
+                        </button>
+
+                        <a href="/Forum/Create" class="btn btn-success ms-auto">
+                            + 新增貼文
+                        </a>
+                    </div>
+                }
+            </div>
+            <div class="card-body">
+
+                <!-- start:: Basic Table -->
+                <div class="table-responsive" data-simplebar="">
+                    <table class="table text-nowrap align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>
+                                    分類
+                                </th>
+                                <th>
+                                    標題
+                                </th>
+                                <th>
+                                    UserID
+                                </th>
+                                <th>
+                                    發文時間
+                                </th>
+                                <th class="text-center">
+                                    觀看數量
+                                </th>
+            
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int count = 0;
+                                foreach (var item in Model)
+                                {
+                                    count++;
+                                    <tr>
+                                        <td>
+                                            @item.Category?.CategoryName
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PostTitle)
+                                        </td>
+                                        <td>
+                                            @item.Member?.UserId
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PostTime)
+                                        </td>
+                                        <td class="text-center">
+                                            @Html.DisplayFor(modelItem => item.ViewCount)
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink("查看", "Detail", "Forum", new { id = @item.PostId }, null)
+                                        </td>
+                    
+                                    </tr>
+                                }
+        
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

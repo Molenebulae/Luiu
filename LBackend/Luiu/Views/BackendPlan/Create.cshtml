@@ -1,0 +1,84 @@
+﻿@model Luiu.Models.CTripPlanWrap
+
+@{
+    ViewData["Title"] = "建立計畫";
+}
+
+<h4>新建旅行計畫</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group">
+                <label asp-for="TripName" class="control-label fw-bold"></label>
+                <input asp-for="TripName" class="form-control" />
+                <span asp-validation-for="TripName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PrivacyStatus" class="control-label"></label>
+                <div class="mt-2">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="PrivacyStatus" value="1" id="privacyYes">
+                            <label class="form-check-label" for="privacyYes">是</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="PrivacyStatus" value="0" id="privacyNo">
+                                <label class="form-check-label" for="privacyNo">否</label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="PrivacyStatus" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="IsSuggest" class="control-label"></label>
+                        <div class="mt-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="Trip.IsSuggest" value="true" id="SuggestYes">
+                                    <label class="form-check-label" for="SuggestYes">是</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" asp-for="Trip.IsSuggest" value="false" id="SuggestNo">
+                                        <label class="form-check-label" for="SuggestNo">否</label>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="PrivacyStatus" class="text-danger"></span>
+                            </div>
+            <div class="form-group">
+                <label asp-for="OwnerName" class="control-label fw-bold"></label>
+                <input asp-for="OwnerName" class="form-control" />
+                <span asp-validation-for="OwnerName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ListId" class="control-label fw-bold"></label>
+                <input asp-for="ListId" class="form-control" />
+                <span asp-validation-for="ListId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartDate" class="control-label fw-bold"></label>
+                <input asp-for="StartDate" class="form-control" type="date" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label fw-bold"></label>
+                <input asp-for="EndDate" class="form-control" type="date" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="送出並建立" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="TripList">取消建立</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

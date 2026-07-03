@@ -1,0 +1,33 @@
+@mixin luiu-link-style($color: $primary, $hover-color: $primary, $visited-color: #6f42c1) {
+  /* 基礎顏色設定 */
+  color: $color;
+  text-decoration: underline;
+
+  // 使用 rgba 搭配透明度來達成底線漸入漸出
+  text-decoration-color: rgba($color, 0);
+  text-underline-offset: 0.2em;
+
+  transition:
+    color 0.15s ease-in-out,
+    text-decoration-color 0.15s ease-in-out,
+    text-underline-offset 0.15s ease-in-out;
+
+  &:visited {
+    color: $visited-color;
+  }
+
+  &:hover {
+    color: $hover-color;
+    text-decoration-color: rgba($hover-color, 0.75);
+    text-underline-offset: 0.3em;
+  }
+
+  &:active {
+    // 點擊瞬間的顏色，通常可以維持 hover 色或稍微加深
+    color: darken($hover-color, 10%);
+  }
+}
+
+.luiu-a-primary {
+  @include luiu-link-style($primary, $primary);
+}

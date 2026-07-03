@@ -1,0 +1,20 @@
+.plan-create-memory-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(var(--bs-dark-rgb), 0.65);
+}
+
+.plan-create-memory-dialog {
+  width: min(100%, 700px);
+  height: 85vh;
+  max-height: 900px;
+}
+
+.plan-create-memory-body {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--bs-light);
+}

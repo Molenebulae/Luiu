@@ -1,0 +1,96 @@
+﻿# =========================
+# Frontend (Vue)
+# =========================
+LFrontend/node_modules/
+LFrontend/dist/
+LFrontend/dist-ssr/
+LFrontend/coverage/
+LFrontend/.env
+LFrontend/.env.*
+LFrontend/*.local
+LFrontend/*.tsbuildinfo
+LFrontend/.eslintcache
+LFrontend/cypress/videos/
+LFrontend/cypress/screenshots/
+LFrontend/__screenshots__/
+LFrontend/*.timestamp-*-*.mjs
+
+# =========================
+# Backend (.NET)
+# =========================
+LBackend/**/bin/
+LBackend/**/obj/
+LBackend/**/[Dd]ebug/
+LBackend/**/[Rr]elease/
+LBackend/**/[Ll]og/
+LBackend/**/[Ll]ogs/
+LBackend/API/appsettings.Development.json
+LBackend/Luiu/appsettings.Development.json
+LBackend/**/*.user
+LBackend/**/*.rsuser
+LBackend/**/*.suo
+LBackend/**/*.sln.docstates
+LBackend/**/*.csproj.user
+LBackend/**/*.mdf
+LBackend/**/*.ldf
+LBackend/**/*.ndf
+LBackend/**/BenchmarkDotNet.Artifacts/
+LBackend/**/TestResult.xml
+LBackend/**/[Tt]est[Rr]esult*/
+LBackend/**/coverage*.json
+LBackend/**/coverage*.xml
+LBackend/**/coverage*.info
+LBackend/**/*.binlog
+LBackend/Prompt/
+
+# =========================
+# Database
+# =========================
+LDatabase/**/bin/
+LDatabase/**/obj/
+LDatabase/**/*.user
+LDatabase/**/*.dbmdl
+LDatabase/**/*.jfm
+LDatabase/**/*.mdf
+LDatabase/**/*.ldf
+LDatabase/**/*.ndf
+
+# =========================
+# IDE
+# =========================
+.vs/
+.vscode/
+.idea/
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.cache
+*.local
+
+# =========================
+# AI Agents
+# =========================
+AGENTS.md

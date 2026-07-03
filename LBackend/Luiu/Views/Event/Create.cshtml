@@ -1,0 +1,176 @@
+﻿@model Luiu.Models.TEvent
+@using Luiu.ViewModels
+@{
+    ViewBag.Title = "新增活動";
+}
+
+<div>
+    <h2 class="my-3">新增活動</h2>
+</div>
+<div>
+    <form id="createEventForm" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-md-5">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">活動名稱</label>
+                    <input asp-for="EventName" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">活動類別</label>
+                    <input asp-for="EventType" class="form-control" placeholder="如：節慶、市集" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">宣傳圖片</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-bold">開始時間</label>
+                        <input asp-for="StartTime" type="datetime-local" class="form-control" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-bold">結束時間</label>
+                        <input asp-for="EndTime" type="datetime-local" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">官方網站</label>
+                    <input asp-for="OfficialUrl" class="form-control" placeholder="https://..." />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">活動描述</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="row h-100">
+                    <div class="col-md-6 d-flex flex-column">
+                        <label class="form-label fw-bold text-secondary">景點列表</label>
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="text" id="spotSearch" class="form-control" placeholder="搜尋名稱或地址..." />
+                        </div>
+                        <div id="available-list" class="border rounded bg-white overflow-auto p-2" style="height: 450px;">
+                            @foreach (var vm in (List<CSpotListViewModel>)ViewBag.AllSpots)
+                            {
+                                <div class="spot-item border-bottom py-1"
+                                     data-name="@vm.spot.SpotName"
+                                     data-address="@vm.spot.Address">
+                                    <div class="form-check">
+                                        <input class="form-check-input spot-checkbox" type="checkbox"
+                                               name="selectedSpotIds"
+                                               value="@vm.spot.SpotId"
+                                               id="chk-@vm.spot.SpotId"
+                                               data-display-text="@vm.spot.SpotName"
+                                               data-region="@vm.RegionName">
+                                        <label class="form-check-label d-block" for="chk-@vm.spot.SpotId">
+                                            <small class="badge bg-light text-dark border">@vm.RegionName</small>
+                                            <span class="ms-1">@vm.spot.SpotName</span>
+                                            <div class="text-muted" style="font-size: 0.75rem;">@vm.spot.Address</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 d-flex flex-column">
+                        <label class="form-label fw-bold text-primary">活動相關景點 (<span id="selectedCount">0</span>)</label>
+                        <div id="selected-list" class="border rounded bg-light overflow-auto p-2" style="height: 482px;">
+                            <div id="no-selection-msg" class="text-center text-muted mt-5">尚未選取任何景點</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <div class="text-end mb-5">
+            <a asp-action="List" class="btn btn-outline-secondary px-4 me-2">取消並返回</a>
+            <button type="submit" class="btn btn-primary px-5">建立活動</button>
+        </div>
+        </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const availableList = document.getElementById('available-list');
+        const selectedList = document.getElementById('selected-list');
+        const selectedCountLabel = document.getElementById('selectedCount');
+        const noMsg = document.getElementById('no-selection-msg');
+
+        document.getElementById("spotSearch").addEventListener("input", function(e) {
+            const keyword = e.target.value.toLowerCase();
+            document.querySelectorAll(".spot-item").forEach(item => {
+                const name = item.getAttribute('data-name').toLowerCase();
+                const addr = item.getAttribute('data-address').toLowerCase();
+                item.style.display = (name.includes(keyword) || addr.includes(keyword)) ? "" : "none";
+            });
+        });
+
+        availableList.addEventListener('change', function(e) {
+            if (e.target.classList.contains('spot-checkbox')) {
+                renderSelectedList();
+            }
+        });
+
+        function renderSelectedList() {
+            const checkedBoxes = availableList.querySelectorAll('.spot-checkbox:checked');
+            selectedList.innerHTML = '';
+
+            if (checkedBoxes.length === 0) {
+                selectedList.appendChild(noMsg);
+                selectedCountLabel.innerText = "0";
+                return;
+            }
+
+            checkedBoxes.forEach(chk => {
+                const name = chk.getAttribute('data-display-text');
+                const region = chk.getAttribute('data-region');
+                const id = chk.value;
+
+                const tag = document.createElement('div');
+                tag.className = "d-flex justify-content-between align-items-center bg-white border rounded p-2 mb-2 shadow-sm animate__animated animate__fadeInIn";
+                tag.innerHTML = `
+                    <div>
+                        <small class="text-primary fw-bold">[${region}]</small> <span>${name}</span>
+                    </div>
+                    <button type="button" class="btn-close btn-sm" onclick="uncheckSpot(${id})"></button>
+                `;
+                selectedList.appendChild(tag);
+            });
+
+            selectedCountLabel.innerText = checkedBoxes.length;
+        }
+
+        function uncheckSpot(id) {
+            const chk = document.getElementById('chk-' + id);
+            if (chk) {
+                chk.checked = false;
+                renderSelectedList();
+            }
+        }
+
+        // --- AJAX 提交 ---
+        document.getElementById("createEventForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch('/Event/Create', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire('成功', result.message, 'success').then(() => { window.location.href = '/Event/List'; });
+                } else {
+                    Swal.fire('失敗', result.message, 'error');
+                }
+            } catch (err) { Swal.fire('錯誤', '連線異常', 'error'); }
+        });
+    </script>
+}

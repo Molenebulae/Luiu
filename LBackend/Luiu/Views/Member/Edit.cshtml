@@ -1,0 +1,142 @@
+﻿@model Luiu.Models.CMemberWrap
+@using Luiu.Enums;
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="main-breadcrumb my-3 position-relative">
+    <div class="flex-shrink-0">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-double-slash">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">會員管理</a></li>
+                <li class="breadcrumb-item active" aria-current="page">會員資料</li>
+                <li class="breadcrumb-item active" aria-current="page">編輯會員資料</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<form asp-action="Edit" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-5">
+                        <input type="hidden" name="MemberId" value="@Model.MemberId" />
+
+                        <div class="col-12">
+                            <label asp-for="UserId" class="form-label"></label> :
+                            <input asp-for="UserId" class="form-control" />
+                            <span asp-validation-for="UserId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Name" class="control-label"></label> :
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-xl-6">
+                            <label asp-for="Gender" class="control-label"></label> :
+                            <select asp-for="Gender" asp-items="Html.GetEnumSelectList<AppEnums.MemberGenday>()" class="form-select"></select>
+                        </div>
+
+                        <div class="col-xl-6">
+                            <label asp-for="Phone" class="control-label"></label> :
+                            <input asp-for="Phone" class="form-control" type="text" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        <div class="col-xl-12">
+                            <label asp-for="Email" class="control-label"></label> :
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+
+                        <div class="col-xl-12">
+                            <label asp-for="CreateDate" class="control-label"></label> :
+                            <input asp-for="CreateDate" class="form-control" type="text" readonly>
+                        </div>
+
+                        <div class="col-xl-12">
+                            <label asp-for="Birthday" class="control-label"></label> :
+                            <input asp-for="Birthday" class="form-control" id="select-initialization-piker" placeholder="選擇生日">
+                            <span asp-validation-for="Birthday" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-xl-12">
+                            <label asp-for="IconUrl" class="control-label"></label> :
+                            <input asp-for="IconUrl" type="file" class="form-control" id="inputGroupFile01" name="Icon">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End col-->
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-body ">
+                    <div class="row g-5">
+                        <div class="col-12">
+                            <label asp-for="ProfileStatus" class="control-label"></label> :
+                            <div class="d-flex flex-wrap gap-2">
+                                <div>
+                                    <input asp-for="ProfileStatus" type="radio" class="btn-check" name="options" id="private" value="false" autocomplete="off">
+                                    <label class="btn btn-light-info" for="private">私人</label>
+                                </div>
+                                <div>
+                                    <input asp-for="ProfileStatus" type="radio" class="btn-check" name="options" id="public" value="true" autocomplete="off">
+                                    <label class="btn btn-light-info" for="public">公開</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Status" class="control-label"></label> :
+                            <select asp-for="Status" asp-items="Html.GetEnumSelectList<AppEnums.MemberStatus>()" class="form-select"></select>
+                        </div>
+
+                        @if (Model.Status == AppEnums.MemberStatus.Suspended)
+                        {
+                            <div class="col-12">
+                                <label asp-for="LockReason" class="control-label"></label> :
+                                <textarea asp-for="LockReason" class="form-control" rows="3" readonly placeholder="@Model.LockReason"></textarea>
+                            </div>
+                        }
+
+
+
+                        <div class="col-12">
+                            <label asp-for="RoleId" class="control-label"></label>:
+                            <select asp-for="RoleId" asp-items="Html.GetEnumSelectList<AppEnums.RoleType>()" class="form-select"></select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--End col-->
+
+        <div class="d-flex gap-3 justify-content-end mb-5">
+            <a asp-action="List" class="btn btn-light">取消修改</a>
+            <button class="btn btn-primary" type="submit">
+                送出修改
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Styles {
+        <link href="~/template_utbix/assets/libs/air-datepicker/air-datepicker.css" rel="stylesheet">
+}
+
+@section Scripts {
+    <script src="~/template_utbix/assets/libs/air-datepicker/air-datepicker.js"></script>
+    <script src="~/template_utbix/assets/js/ui/air-datepicker.init.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

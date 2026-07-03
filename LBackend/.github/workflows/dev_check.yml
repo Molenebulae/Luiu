@@ -1,0 +1,69 @@
+name: LuiuDB Sync
+on:
+  push:
+    branches: ["dev"]
+
+jobs:
+  Build_Check:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 設定 .NET 環境
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # 建置環境
+      - name: Restore and Build
+        run: |
+          # 只針對 SQL 專案進行還原與建置
+          dotnet restore LuiuDB/LuiuDB.sqlproj
+          dotnet build LuiuDB/LuiuDB.sqlproj --configuration Release --no-restore
+
+      # 將編譯好的資料打包
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-app
+          path: |
+            **/bin/Release/**/*.dll
+            **/bin/Release/**/*.dacpac
+          retention-days: 1 # 節省空間，保留一天即可
+
+  Deploy_to_server:
+    name: Deploy to vm60
+    needs: Build_Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-app
+
+      - name: Connect To Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Install SqlPackage
+        run: |
+          curl -L https://aka.ms/sqlpackage-linux -o sqlpackage-linux.zip
+          unzip sqlpackage-linux.zip -d ./sqlpackage
+          chmod +x ./sqlpackage/sqlpackage
+          echo "$(pwd)/sqlpackage" >> $GITHUB_PATH
+
+      - name: Update Database Structure
+        run: |
+          DACPAC_PATH=$(find . -name "*.dacpac" | head -n 1)
+          echo "Using DACPAC: $DACPAC_PATH"
+
+          sqlpackage \
+            /Action:Publish \
+            /SourceFile:"$DACPAC_PATH" \
+            /TargetConnectionString:"${{ secrets.DB_CONNECT_STRING_ADMIN }}" \
+            /p:AllowIncompatiblePlatform=True \
+            /p:BlockOnPossibleDataLoss=False

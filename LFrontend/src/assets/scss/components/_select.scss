@@ -1,0 +1,33 @@
+.form-floating {
+  .form-select.custom-border {
+    border: 1px solid $input-border;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: $dark;
+    transition: all 0.2s ease-in-out;
+
+    // 聚焦狀態 (使用全域 $primary)
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 0.25rem rgba($primary, 0.15);
+      outline: 0;
+    }
+
+    // 當選擇的是 disabled 的 placeholder 時，顏色變淺
+    &:invalid,
+    &[value=""] {
+      color: $text-muted;
+    }
+  }
+
+  label {
+    color: $text-muted;
+    transition: all 0.2s;
+  }
+
+  // 確保標籤在選擇後依然保持正確的縮放與顏色
+  .form-select:focus ~ label,
+  .form-select:not([value=""]) ~ label {
+    color: $primary;
+  }
+}

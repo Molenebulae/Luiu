@@ -1,0 +1,86 @@
+﻿@model IEnumerable<Luiu.ViewModels.StatViewModel>
+
+@{
+    ViewData["Title"] = "數據統計";
+}
+
+<h2 class="mt-4 mb-4">📊 遊記數據統計</h2>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form asp-action="stat" method="get" class="row g-3 align-items-center">
+            
+            <div class="col-auto">
+                <label class="fw-bold col-form-label">關鍵字：</label>
+            </div>
+            <div class="col-auto">
+                <input type="text" name="txtKeyword" class="form-control" placeholder="請輸入標題..." value="@ViewBag.Keyword" />
+            </div>
+
+            <div class="col-auto">
+                <label class="fw-bold col-form-label ms-2">出發日期：</label>
+            </div>
+            <div class="col-auto">
+                <input type="date" name="searchDate" class="form-control" value="@ViewBag.SearchDate" />
+            </div>
+            
+            <div class="col-auto">
+                <label class="fw-bold col-form-label ms-2">排序方式：</label>
+            </div>
+            <div class="col-auto">
+                <select name="sortOrder" class="form-select" onchange="this.form.submit()">
+                    <option value="">預設排序 (依編號)</option>
+                    <option value="views" selected="@(ViewBag.CurrentSort == "views")">👀 觀看次數 (高到低)</option>
+                    <option value="likes" selected="@(ViewBag.CurrentSort == "likes")">❤️ 按讚次數 (高到低)</option>
+                    <option value="favorites" selected="@(ViewBag.CurrentSort == "favorites")">⭐ 收藏次數 (高到低)</option>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary ms-2">🔍 查詢</button>
+                <a asp-action="stat" class="btn btn-outline-secondary ms-1">清除條件</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover shadow-sm align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>編號</th>
+                <th>紀錄標題</th>
+                <th>作者</th>
+                <th>出發日期</th>
+                <th>觀看次數</th>
+                <th>按讚次數</th>
+                <th>收藏次數</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.MemoryID</td>
+                        <td>@item.Title</td>
+                        <td>@item.AuthorName</td>
+                        <td>@item.SubmitDate</td>
+                        <td>👀 @item.ViewCount</td>
+                        <td>❤️ @item.LikeCount</td>
+                        <td>⭐ @item.FavoriteCount</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        找不到包含「<span class="text-danger">@ViewBag.Keyword</span>」的旅遊紀錄 😢
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

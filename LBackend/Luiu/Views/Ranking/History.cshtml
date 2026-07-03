@@ -1,0 +1,96 @@
+﻿@model Luiu.ViewModels.CRankingHistoryViewModel
+@{
+    ViewBag.Title = "排行榜";
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex column-gap-5">
+            <h2>排行榜</h2>
+            <form method="get" class="d-flex align-items-center">
+                <label class="me-2 text-nowrap">選擇期別：</label>
+                <select name="rankType" class="form-select me-2" onchange="this.form.submit()">
+                    @foreach (var type in Model.AvailableRankTypes)
+                    {
+                        <option value="@type" selected="@(type == Model.SelectedRankType)">@type</option>
+                    }
+                </select>
+            </form>
+        </div>
+        <div>
+            <a href="@Url.Action("Dashboard", "Ranking")" class="btn btn-outline-secondary">設定權重</a>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs" id="rankTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#spot">景點 Top 10</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#region">地區平均分排行</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#event">最新活動週榜</button>
+        </li>
+    </ul>
+
+    <div class="tab-content border border-top-0 p-4 bg-white shadow-sm">
+        <div class="tab-pane fade show active" id="spot">
+            <h4>@Model.SelectedRankType 景點排行</h4>
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr><th>名次</th><th>景點名稱</th><th>景點 ID</th><th>結算日期</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.SpotRanks)
+                    {
+                        <tr>
+                            <td><span class="badge @(item.Rank <= 3 ? "bg-warning" : "bg-secondary")">@item.Rank</span></td>
+                            <td><strong>@item.SpotName</strong></td>
+                            <td>@item.SpotId</td>
+                            <td>@item.RankDate.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="region">
+            <h4>@Model.SelectedRankType 地區排行</h4>
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr><th>名次</th><th>地區名稱</th><th>地區 ID</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RegionRanks)
+                    {
+                        <tr>
+                            <td><span class="badge @(item.Rank <= 3 ? "bg-info" : "bg-secondary")">@item.Rank</span></td>
+                            <td>@item.RegionName</td>
+                            <td>@item.RegionId</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="event">
+            <div class="alert alert-light border">
+                <strong>活動週榜 (最新一期)</strong>：紀錄於 @(Model.EventRanks.FirstOrDefault()?.RankDate.ToString("yyyy-MM-dd") ?? "無紀錄")
+            </div>
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr><th>名次</th><th>活動名稱</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.EventRanks)
+                    {
+                        <tr>
+                            <td><span class="badge bg-danger">@item.Rank</span></td>
+                            <td>@item.EventName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

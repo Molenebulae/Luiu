@@ -1,0 +1,85 @@
+﻿@model IEnumerable<Luiu.Models.TEvent>
+
+@{
+    ViewBag.Title = "活動列表";
+}
+
+<div>
+    <h2 class="my-2">活動列表</h2>
+</div>
+
+<div>
+    <div class="my-2">
+        <a asp-action="Create" class="btn btn-outline-primary btn-sm">新增活動</a>
+    </div>
+
+    <form asp-action="List" method="get">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <input type="text" name="txtkeyword" class="form-control" placeholder="搜尋活動名稱或類型..." value="@ViewBag.Keyword" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">搜尋</button>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>活動圖</th>
+                <th>活動名稱</th>
+                <th>類型</th>
+                <th>活動期間</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="align-middle">
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageBg))
+                        {
+                            <img src="/images/@item.ImageBg" style="max-width: 80px; max-height: 50px; border-radius: 4px;" alt="活動圖" />
+                        }
+                        else
+                        {
+                            <div class="bg-light text-muted d-flex align-items-center justify-content-center" style="width: 80px; height: 50px; font-size: 10px; border-radius: 4px;">無圖片</div>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EventName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EventType)
+                    </td>
+                    <td>
+                        @(item.StartTime?.ToString("yyyy-MM-dd HH:mm") ?? "未定")
+                        &nbsp;-&nbsp;
+                        @(item.EndTime?.ToString("yyyy-MM-dd HH:mm") ?? "未定")
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.OfficialUrl))
+                        {
+                            <a href="@item.OfficialUrl" target="_blank" class="text-truncate d-inline-block" style="max-width: 150px;" title="@item.OfficialUrl">
+                                <i class="fas fa-external-link-alt me-1"></i>官網
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">無</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.ActionLink("修改", "Edit", "Event", new { id = item.EventId }, new { @class = "btn btn-outline-success btn-sm" })
+                        @Html.ActionLink("刪除", "Delete", "Event", new { id = item.EventId }, new { @class = "btn btn-outline-danger btn-sm ms-3", onclick = "return confirm('確定要刪除這個活動嗎?')" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

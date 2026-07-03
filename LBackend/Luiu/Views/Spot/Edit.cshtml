@@ -1,0 +1,347 @@
+﻿@model Luiu.Models.TSpot
+
+@{
+    ViewData["Title"] = "編輯景點";
+    var existingPhotos = ViewBag.Photos as List<Luiu.Models.TSpotPhoto> ?? new List<Luiu.Models.TSpotPhoto>();
+}
+
+<div>
+    <h2 class="my-2">編輯景點</h2>
+</div>
+<div>
+    <div class="my-2">
+        <a asp-action="List" class="btn btn-outline-secondary btn-sm">回到列表</a>
+    </div>
+
+    <div class="container-fluid py-3">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <form id="editSpotForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="SpotId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label font-weight-bold">所屬地區</label>
+                                @Html.DropDownList("RegionId", (SelectList)ViewBag.RegionList, "--- 請選擇地區 ---", new { @class = "form-select", required = "required" })
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">景點名稱</label>
+                                <input asp-for="SpotName" class="form-control" required />
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label class="form-label">經度</label>
+                                    <input type="text" id="Longitude" name="Longitude"
+                                           value="@Model.Longitude?.ToString("F8")"
+                                           class="form-control" readonly />
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">緯度</label>
+                                    <input type="text" id="Latitude" name="Latitude"
+                                           value="@Model.Latitude?.ToString("F8")"
+                                           class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">地址</label>
+                                <input asp-for="Address" class="form-control" />
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label class="form-label">電話</label>
+                                    <input asp-for="Tel" class="form-control" />
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">評分</label>
+                                    <input asp-for="Rating" class="form-control" readonly />
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">評論數</label>
+                                    <input asp-for="UserRatingCount" class="form-control" readonly />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">官方網站</label>
+                                <input asp-for="OfficialUrl" class="form-control" />
+                                <input type="hidden" asp-for="GoogleMapUrl" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" asp-for="GoogleMapId" />
+                    <input type="hidden" asp-for="OpeningHoursJson" />
+                    <input type="hidden" asp-for="PriceLevel" />
+
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-secondary text-white px-5 py-3 fs-6">營業時間設定</div>
+                        <div class="card-body" id="opening-hours-editor">
+                            @{
+                                string[] dayNames = { "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六" };
+                            }
+                            @for (int i = 0; i < 7; i++)
+                            {
+                                <div class="day-row mb-3 p-2 border-bottom" data-day="@i">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h6 class="mb-0 me-3" style="width: 80px;">@dayNames[i]</h6>
+                                        <div class="form-check form-switch me-3">
+                                            <input class="form-check-input is-24h" type="checkbox" id="24h-@i">
+                                            <label class="form-check-label" for="24h-@i">24 小時營業</label>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary add-slot-btn">
+                                            <i class="fas fa-plus"></i> 新增時段
+                                        </button>
+                                    </div>
+                                    <div class="slots-container d-flex flex-wrap gap-2"></div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold"><i class="fas fa-images me-2"></i>景點相片</label>
+                        <div id="existing-photos-container" class="d-flex flex-wrap gap-3 border p-3 bg-light" style="min-height: 150px; border-radius: 8px;">
+                            @if (existingPhotos.Any())
+                            {
+                                foreach (var photo in existingPhotos)
+                                {
+                                    <div class="photo-edit-wrapper position-relative" data-photo-id="@photo.PhotoId">
+                                        <img src="/Images/@photo.PhotoUrl" class="img-thumbnail shadow-sm" style="width: 140px; height: 140px; object-fit: cover; border-radius: 8px;" />
+
+                                        <button type="button" class="btn btn-danger delete-photo-btn shadow"
+                                                style="position: absolute; top: -10px; right: -10px;
+                                                               border-radius: 50%; width: 26px; height: 26px;
+                                                               padding: 0; display: flex; align-items: center; justify-content: center;
+                                                               border: 2px solid white; line-height: 1; font-weight: bold; font-size: 16px;">
+                                            <span style="color: white; margin-top: -2px;">&times;</span>
+                                        </button>
+
+                                        <input type="hidden" name="deletePhotoIds" value="@photo.PhotoId" disabled class="delete-marker" />
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted small">此景點目前無相片。</span>
+                            }
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="row">
+                        <div class="col-6">
+                            <a asp-action="List" class="btn btn-outline-secondary w-100 py-2">取消</a>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary w-100 py-2">
+                                <i class="fas fa-save me-2"></i>儲存修改
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 頁面載入後自動填入營業時間
+        document.addEventListener("DOMContentLoaded", function() {
+            const rawJson = `@Html.Raw(Model.OpeningHoursJson)`;
+            if (rawJson) {
+                populateOpeningHours(rawJson);
+            }
+        });
+
+        // --- 圖片刪除 ---
+        document.getElementById("existing-photos-container").addEventListener("click", function(e) {
+            const btn = e.target.closest('.delete-photo-btn');
+            if (btn) {
+                const wrapper = btn.closest('.photo-edit-wrapper');
+                const marker = wrapper.querySelector('.delete-marker');
+
+                wrapper.classList.add('d-none');
+                marker.disabled = false;
+            }
+        });
+
+        // --- 營業時間處理 ---
+        function formatTime(h, m) {
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function populateOpeningHours(periodsJson) {
+            const editor = document.getElementById("opening-hours-editor");
+            editor.querySelectorAll('.slots-container').forEach(c => c.innerHTML = "");
+            editor.querySelectorAll('.is-24h').forEach(c => {
+                c.checked = false;
+                c.closest('.day-row').classList.remove('border', 'border-danger');
+            });
+
+            if (!periodsJson || periodsJson === "[]" || periodsJson === "") return;
+            const periods = JSON.parse(periodsJson);
+
+            const isAlwaysOpen = periods.length === 1 &&
+                                 periods[0].open.day === 0 &&
+                                 periods[0].open.hour === 0 &&
+                                 periods[0].open.minute === 0 &&
+                                 !periods[0].close;
+
+            if (isAlwaysOpen) {
+                editor.querySelectorAll('.is-24h').forEach(c => {
+                    c.checked = true;
+                    const row = c.closest('.day-row');
+                    row.querySelector('.add-slot-btn').classList.add('disabled');
+                });
+                return;
+            }
+
+            periods.forEach(p => {
+                const day = p.open.day;
+                const row = editor.querySelector(`.day-row[data-day="${day}"]`);
+                if (!row) return;
+
+                const container = row.querySelector('.slots-container');
+                const is24hCheck = row.querySelector('.is-24h');
+
+                if (p.open.hour === 0 && p.open.minute === 0 && !p.close) {
+                    is24hCheck.checked = true;
+                    row.querySelector('.add-slot-btn').classList.add('disabled');
+                    return;
+                }
+
+                const openTime = formatTime(p.open.hour, p.open.minute);
+                const closeTime = p.close ? formatTime(p.close.hour, p.close.minute) : "";
+                addTimeSlotUI(container, openTime, closeTime);
+            });
+        }
+
+        function addTimeSlotUI(container, openVal = "", closeVal = "") {
+            const slotDiv = document.createElement("div");
+            slotDiv.className = "d-flex align-items-center bg-white border rounded p-1 mb-1 shadow-sm time-slot-item";
+            const finalOpen = openVal || "09:00";
+            const finalClose = closeVal || "18:00";
+
+            slotDiv.innerHTML = `
+                <input type="time" class="form-control form-control-sm border-0 open-val" value="${finalOpen}" required>
+                <span class="mx-1">-</span>
+                <input type="time" class="form-control form-control-sm border-0 close-val" value="${finalClose}" required>
+                <button type="button" class="btn btn-sm text-danger ms-1 remove-slot">×</button>
+            `;
+            container.appendChild(slotDiv);
+        }
+
+        document.querySelectorAll('.add-slot-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const row = e.target.closest('.day-row');
+                if (row.querySelector('.is-24h').checked) return;
+                addTimeSlotUI(row.querySelector('.slots-container'));
+            };
+        });
+
+        document.getElementById("opening-hours-editor").addEventListener('click', (e) => {
+            if (e.target.closest('.remove-slot')) e.target.closest('.remove-slot').parentElement.remove();
+        });
+
+        document.getElementById("opening-hours-editor").addEventListener('change', (e) => {
+            if (e.target.classList.contains('is-24h')) {
+                const row = e.target.closest('.day-row');
+                const container = row.querySelector('.slots-container');
+                const addBtn = row.querySelector('.add-slot-btn');
+                if (e.target.checked) {
+                    container.innerHTML = "";
+                    addBtn.classList.add('disabled');
+                } else {
+                    addBtn.classList.remove('disabled');
+                }
+            }
+        });
+
+        // 序列化
+        function serializeOpeningHours() {
+            const periods = [];
+            let hasError = false;
+            let alwaysOpenCount = 0;
+
+            document.querySelectorAll('.day-row').forEach(row => {
+                row.classList.remove('border', 'border-danger');
+                row.style.backgroundColor = "";
+                const day = parseInt(row.dataset.day);
+                const is24h = row.querySelector('.is-24h').checked;
+                const slotElements = row.querySelectorAll('.time-slot-item');
+
+                if (is24h && slotElements.length > 0) {
+                    hasError = true;
+                    row.classList.add('border', 'border-danger');
+                }
+
+                if (is24h) {
+                    alwaysOpenCount++;
+                    periods.push({ open: { day: day, hour: 0, minute: 0 } });
+                } else {
+                    const daySlots = [];
+                    slotElements.forEach(slot => {
+                        const openVal = slot.querySelector('.open-val').value;
+                        const closeVal = slot.querySelector('.close-val').value;
+                        if (openVal && closeVal) {
+                            const [oH, oM] = openVal.split(':').map(Number);
+                            const [cH, cM] = closeVal.split(':').map(Number);
+                            daySlots.push({ day, oH, oM, cH, cM });
+                        }
+                    });
+                    // 此處可依 Create 邏輯加入重疊檢查...
+                    daySlots.forEach(s => {
+                        periods.push({ open: { day: s.day, hour: s.oH, minute: s.oM }, close: { day: s.day, hour: s.cH, minute: s.cM } });
+                    });
+                }
+            });
+
+            if (hasError) { Swal.fire('驗證失敗', '設定衝突，請檢查紅框處。', 'error'); return false; }
+
+            let finalJsonData = periods;
+            if (alwaysOpenCount === 7) finalJsonData = [{ open: { day: 0, hour: 0, minute: 0 } }];
+            document.getElementById("OpeningHoursJson").value = JSON.stringify(finalJsonData);
+            return true;
+        }
+
+        // --- AJAX 提交修改 ---
+        document.getElementById("editSpotForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            if (!serializeOpeningHours()) return;
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/Spot/Edit', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '修改成功',
+                        text: result.message,
+                        timer: 2000
+                    });
+                } else {
+                    Swal.fire('失敗', result.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('錯誤', '連線異常', 'error');
+            }
+        });
+    </script>
+}

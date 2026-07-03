@@ -1,0 +1,99 @@
+// // src/assets/scss/layout/_navbar.scss
+
+.navbar {
+  height: 65px;
+  position: fixed !important;
+  top: 0 !important;
+  z-index: 1060 !important;
+  width: 100%; // 確保寬度滿版
+  background-color: $white !important;
+  border-bottom: 1px solid $footer-border-color !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+
+  // 調整左右 Padding 使其更貼邊
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+
+  @media (min-width: 992px) {
+    padding-left: 3rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  // Logo 區域樣式
+  .navbar-brand {
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-img {
+      height: 48px; // 稍微調小，配合 Navbar 65px 高度，保持呼吸感
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-size: 2.25rem; // 配合圖片大小調整，避免文字過大顯得笨重
+      font-weight: 800;
+      color: $primary;
+      letter-spacing: -0.5px;
+    }
+  }
+
+  // 導航連結樣式
+  .nav-link {
+    color: $footer-text-main;
+    transition: color 0.3s ease;
+    padding: 0.5rem 1rem !important; // 增加點擊區域
+
+    &:hover,
+    &.router-link-active {
+      color: $primary !important;
+      font-weight: 600;
+    }
+  }
+
+  #navbarCollapse {
+    display: flex;
+    align-items: center;
+
+    // 讓右側兩組選單中間產生間距
+    .navbar-nav {
+      margin-right: 1rem !important; // 直接增加右邊距，將大頭貼推開
+    }
+
+    // 或者，更好的做法是使用 gap (如果你能修改到父層 div)
+    // 如果父層是 div，給它加上一個 class 叫 .navbar-right-side
+  }
+
+  // 下拉選單樣式修正
+  .dropdown-menu {
+    min-width: 180px;
+    position: absolute !important;
+    right: 0 !important; // 移除 -25px，改回 0 讓邊緣對齊更準確
+    margin-top: 10px !important;
+    border: 1px solid $footer-border-color;
+    border-radius: 12px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background-color: $white !important;
+
+    .dropdown-item {
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      color: $footer-text-main;
+
+      &:hover {
+        background-color: rgba($primary, 0.08); // 改用變數
+        color: $primary; // 改用變數
+      }
+
+      &.text-danger:hover {
+        background-color: rgba($danger, 0.05);
+        color: $danger;
+      }
+    }
+  }
+}

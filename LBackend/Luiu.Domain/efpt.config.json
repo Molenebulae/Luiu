@@ -1,0 +1,234 @@
+﻿{
+   "CodeGenerationMode": 6,
+   "ContextClassName": "LuiuDbContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1604",
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PluralRules": null,
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Luiu.Domain",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "SingularRules": null,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[tAdminLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tCollects]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tCommentLikes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tComments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tEventRanks]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tEvents]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tEventSpotRelations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tEventTagRelations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tExpenses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tExpensesSplits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tFollows]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tLoginLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tMembers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tMemories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tMemoryDays]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tMemoryStops]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tOAuthLogins]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tPackingCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tPackingItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tPostLikes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tPosts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tPostTags]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tReferences]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tRegionRanks]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tRegions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tReports]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tRole]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSpotMonthlySnaps]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSpotRanks]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSpots]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSpotTagRelations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSpotTypeRelations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSpotTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSystemConfigs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tSystemLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTags]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTripCollaborators]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTripComments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTripDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTrips]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTripSuggests]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tUserPackingLists]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tVerifications]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tViolationRules]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false,
+   "UseTypedTvpParameters": true
+}

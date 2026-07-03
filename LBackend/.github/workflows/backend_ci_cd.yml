@@ -1,0 +1,54 @@
+name: Azure Backend & Database Deployment
+on:
+  push:
+    branches: ["dev"]
+
+jobs:
+  backend_lifecycle_process:
+    # if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    name: Backend & Database Deployment
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # 建置 API 專案跟 SQL 專案
+      - name: Restore and Build
+        run: |
+          dotnet restore ./LuiuDB/LuiuDB.sqlproj
+          dotnet restore ./API/API.csproj
+          dotnet build ./LuiuDB/LuiuDB.sqlproj --configuration Release
+          dotnet build ./API/API.csproj --configuration Release
+
+      # 登入
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 資料庫遷移 (Migration)
+      - name: Deploy SQL Database
+        run: |
+          curl -L https://aka.ms/sqlpackage-linux -o sqlpackage-linux.zip
+          unzip sqlpackage-linux.zip -d ./sqlpackage
+          chmod +x ./sqlpackage/sqlpackage
+          ./sqlpackage/sqlpackage /Action:Publish \
+            /SourceFile:"./LuiuDB/bin/Release/LuiuDB.dacpac" \
+            /TargetConnectionString:"${{ secrets.AZURE_SQL_CONNECTION_STRING }}" \
+            /p:AllowIncompatiblePlatform=True \
+            /p:BlockOnPossibleDataLoss=False
+
+      # 發布 API 專案
+      - name: Publish API
+        run: dotnet publish ./API/API.csproj --configuration Release --output ./publish
+
+      # 部署發布後的內容到 Azure
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "Luiu-backend-api"
+          package: ./publish
