@@ -77,6 +77,7 @@ service.interceptors.response.use(
     return Promise.reject(apiResponse || error)
   },
 )
-
+console.log('USING THIS AXIOS FILE')
+console.log('API baseURL:', buildApiUrl(import.meta.env.VITE_API_BASE_URL))
 export default service
 
