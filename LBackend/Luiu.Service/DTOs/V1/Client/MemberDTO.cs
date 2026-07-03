@@ -16,5 +16,6 @@ namespace Luiu.Service.DTOs.V1.Client
         public DateOnly? Birthday { get; set; }
         public byte Gender { get; set; } = 0;
         public string Role { get; set; }
+        public string? Token { get; set; }
     }
 }

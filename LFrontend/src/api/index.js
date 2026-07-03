@@ -27,11 +27,18 @@ service.interceptors.request.use(
       config.baseURL = buildApiUrl(import.meta.env.VITE_API_V2)
     }
 
-    // Bearer Token
-    // const token = localStorage.getItem('Luiu_Token')
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`
-    // }q
+    let member = null
+    try {
+      member = JSON.parse(localStorage.getItem('Luiu_Member') || 'null')
+    } catch {
+      localStorage.removeItem('Luiu_Member')
+    }
+
+    const token = member?.token
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
     return config
   },
   (error) => Promise.reject(error),
@@ -79,4 +86,3 @@ service.interceptors.response.use(
 )
 console.log('API baseURL:', buildApiUrl(import.meta.env.VITE_API_BASE_URL))
 export default service
-

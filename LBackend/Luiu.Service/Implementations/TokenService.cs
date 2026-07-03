@@ -26,6 +26,8 @@ namespace Luiu.Service.Implementations
         {
             var jwtSettings = _config.GetSection("JwtSettings");
             var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("製造 Token 時發現 Secret 遺失！");
+            var issuer = jwtSettings["Issuer"] ?? "LuiuBackend";
+            var audience = jwtSettings["Audience"] ?? "LuiuFrontend";
 
             // 設定pyload 的內容
             // 放入userId用於驗證
@@ -49,8 +51,8 @@ namespace Luiu.Service.Implementations
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["DurationInMinute"] ?? "10")),
                 //Expires = DateTime.UtcNow.AddHours(double.Parse(jwtSettings["DurationInHour"] ?? "2")),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
+                Issuer = issuer,
+                Audience = audience,
                 SigningCredentials = creds
             };
             _logger.LogInformation("tokenOptions: {options}", tokenOptions);
