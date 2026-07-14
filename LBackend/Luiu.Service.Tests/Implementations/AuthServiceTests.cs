@@ -4,10 +4,15 @@ using Luiu.Domain.Models;
 using Luiu.Service.DTOs.V1.Client;
 using Luiu.Service.Implementations;
 using Luiu.Service.Interfaces;
+using Luiu.Service.Options;
+using Luiu.Service.Strategies;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Resend;
 using System;
@@ -60,17 +65,53 @@ namespace Luiu.Service.Tests.Implementations
             return mockMapper.Object;
         }
 
+        private AuthService CreateAuthService(
+            LuiuDbContext dbContext,
+            Mock<IEmailService> mockEmailService,
+            Mock<ITokenService> mockTokenService,
+            Mock<IVerificationService> mockVerificationService)
+        {
+            var mockLogger = new Mock<ILogger<AuthService>>();
+            var mockDistributedCache = new Mock<IDistributedCache>();
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            var mockStorageService = new Mock<IStorageService>();
+            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            var demoOptions = Microsoft.Extensions.Options.Options.Create(new DemoAccountOptions());
+            var demoSessionService = new DemoSessionService(
+                dbContext,
+                mockHttpContextAccessor.Object,
+                demoOptions,
+                new Mock<ILogger<DemoSessionService>>().Object);
+
+            return new AuthService(
+                dbContext,
+                mockLogger.Object,
+                GetMapper(),
+                mockDistributedCache.Object,
+                mockTokenService.Object,
+                mockEmailService.Object,
+                mockHttpContextAccessor.Object,
+                mockStorageService.Object,
+                mockHttpClientFactory.Object,
+                Array.Empty<IOAuthStrategy>(),
+                mockVerificationService.Object,
+                demoSessionService,
+                demoOptions);
+        }
+
         [Fact]
-        public async void PrepareRegistrationAsync_ValidEmail_ShouldSaveToCacheAndSendCode()
+        public async Task PrepareRegistrationAsync_ValidEmail_ShouldSaveToCacheAndSendCode()
         {
             // Arrange
             var dbContext = GetInMemoryDbContext();
-            var cache = GetMemoryCache();
             var mockEmailService = new Mock<IEmailService>();
             var mockTokenService = new Mock<ITokenService>();
-            var mockLogger = new Mock<ILogger<AuthService>>();
+            var mockVerificationService = new Mock<IVerificationService>();
+            mockVerificationService
+                .Setup(x => x.CheckAndSetCooldownAsync(It.IsAny<string>(), "Register", 60))
+                .ReturnsAsync(true);
 
-            var authService = new AuthService(dbContext, mockLogger.Object, GetMapper(), cache, mockTokenService.Object, mockEmailService.Object);
+            var authService = CreateAuthService(dbContext, mockEmailService, mockTokenService, mockVerificationService);
 
             var email = "chukps0410106@gmail.com";
             var password = "123456789";
@@ -82,33 +123,32 @@ namespace Luiu.Service.Tests.Implementations
             // Asssert
             Assert.True(result);
 
-            // 驗證快取資料
-            Assert.True(cache.TryGetValue($"RegData_{email}", out RegisterRequestDTO cachedData));
-            Assert.Equal(password, cachedData.Password);
-            _output.WriteLine($"cache data: {cachedData}");
-
-            // 驗證有沒有驗證碼
-            Assert.True(cache.TryGetValue($"RegCode_{email}", out string cachedCode));
-            Assert.Equal(6, cachedCode.Length);
-            _output.WriteLine($"cache code: {cachedCode}");
+            mockVerificationService.Verify(
+                x => x.SetRegistrationDataAsync(email, request, 600),
+                Times.Once
+            );
+            mockVerificationService.Verify(
+                x => x.SetCodeAsync(email, It.Is<string>(code => code.Length == 6), 600),
+                Times.Once
+            );
 
             mockEmailService.Verify(
-                x => x.SendVerificationCodeAsync(email, cachedCode),
+                x => x.SendVerificationCodeAsync(email, It.Is<string>(code => code.Length == 6)),
                 Times.Once
             );
         }
 
         [Fact]
-        public async void CompleteRegistrationAsync_CorrectCode_ShouldCreateAccountAndCleanCache()
+        public async Task CompleteRegistrationAsync_CorrectCode_ShouldCreateAccountAndCleanCache()
         {
             // Arrange
             var dbContext = GetInMemoryDbContext();
-            var cache = GetMemoryCache();
             var mockEmailService = new Mock<IEmailService>();
             var mockTokenService = new Mock<ITokenService>();
-            var mockLogger = new Mock<ILogger<AuthService>>();
+            var mockVerificationService = new Mock<IVerificationService>();
 
-            var authService = new AuthService(dbContext, mockLogger.Object, GetMapper(), cache, mockTokenService.Object, mockEmailService.Object);
+            var authService = CreateAuthService(dbContext, mockEmailService, mockTokenService, mockVerificationService);
+            await Task.CompletedTask;
 
         }
     }
