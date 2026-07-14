@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.V1.Client
 {
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize]
     [Route("api/v{version:apiVersion}/places")]
     public class PlacesController : BaseController<PlacesController>
     {

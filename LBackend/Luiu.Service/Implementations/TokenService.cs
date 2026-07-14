@@ -22,7 +22,7 @@ namespace Luiu.Service.Implementations
             _logger = logger;
         }
 
-        public string CreateToken(string userId, int roleType)
+        public string CreateToken(string userId, int roleType, IEnumerable<Claim>? extraClaims = null, DateTime? expiresAtUtc = null)
         {
             var jwtSettings = _config.GetSection("JwtSettings");
             var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("製造 Token 時發現 Secret 遺失！");
@@ -40,6 +40,10 @@ namespace Luiu.Service.Implementations
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()) // 放入發行時間
                 
             };
+            if (extraClaims != null)
+            {
+                claims.AddRange(extraClaims);
+            }
             _logger.LogInformation("claims資料: {claims}", claims);
 
             // 加密
@@ -49,7 +53,7 @@ namespace Luiu.Service.Implementations
             var tokenOptions = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["DurationInMinute"] ?? "10")),
+                Expires = expiresAtUtc ?? DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["DurationInMinute"] ?? "10")),
                 //Expires = DateTime.UtcNow.AddHours(double.Parse(jwtSettings["DurationInHour"] ?? "2")),
                 Issuer = issuer,
                 Audience = audience,

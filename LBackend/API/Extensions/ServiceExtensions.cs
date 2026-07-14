@@ -230,7 +230,7 @@ namespace API.Extensions
             return services;
         }
 
-        public static IServiceCollection AddLuiuRateLimiter(this IServiceCollection services)
+        public static IServiceCollection AddLuiuRateLimiter(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddRateLimiter(options =>
             {
@@ -275,6 +275,26 @@ namespace API.Extensions
                             PermitLimit = 100,
                             QueueLimit = 0,
                             Window = TimeSpan.FromMinutes(1)
+                        });
+                });
+
+                // Demo 登入專用
+                options.AddPolicy(LuiuConstants.RateLimitPolicies.DemoLogin, context =>
+                {
+                    var demoSection = configuration.GetSection("DemoAccount");
+                    var permitLimit = demoSection.GetValue<int?>("LoginPermitLimit") ?? 3;
+                    var windowMinutes = demoSection.GetValue<int?>("LoginWindowMinutes") ?? 10;
+                    string partitionKey = context.Connection.RemoteIpAddress?.ToString()
+                                          ?? "anonymous";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: partitionKey,
+                        factory: key => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = permitLimit,
+                            QueueLimit = 0,
+                            Window = TimeSpan.FromMinutes(windowMinutes)
                         });
                 });
 

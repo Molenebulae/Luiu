@@ -20,5 +20,8 @@ namespace Luiu.Service.DTOs.V1.Client
 
         // JWT
         public string? Token { get; set; }
+        public bool IsDemoAccount { get; set; }
+        public DateTime? DemoSessionExpiresAt { get; set; }
+        public DemoQuotaDTO? DemoQuota { get; set; }
     }
 }

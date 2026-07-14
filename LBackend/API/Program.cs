@@ -25,7 +25,7 @@ try
     builder.Services.AddLuiuCors(builder.Configuration);
     builder.Services.AddLuiuVersioning();
     builder.Services.AddJwtAuthentication(builder.Configuration);
-    builder.Services.AddLuiuRateLimiter();  // 限制時間內呼叫的次數
+    builder.Services.AddLuiuRateLimiter(builder.Configuration);  // 限制時間內呼叫的次數
     builder.Services.AddSMTP(builder.Configuration);
     builder.Services.AddHttpContextAccessor();  // 登入紀錄用
     Log.Information("註冊基礎設成功");
@@ -40,6 +40,7 @@ try
     builder.Services.AddHttpClient<GooglePlacesService>();
     builder.Services.AddHttpClient<GoogleRoutesService>();
     builder.Services.AddHostedService<RouteCacheCleanupHostedService>();
+    builder.Services.AddHostedService<DemoSessionCleanupHostedService>();
     //builder.Services.AddLuiuServices();
     //builder.Services.Add();
 

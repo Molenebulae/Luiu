@@ -6,6 +6,7 @@ using Luiu.Domain.Enums;
 using Luiu.Domain.Exceptions;
 using Luiu.Domain.Models;
 using Luiu.Service.DTOs.V1.Client;
+using Luiu.Service.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,19 +19,30 @@ namespace Luiu.Service.Implementations
     public class FavoriteService : BaseService<FavoriteService>
     {
         private readonly MemberService _memberService;
-        public FavoriteService(LuiuDbContext context, ILogger<FavoriteService> logger, IMapper mapper, MemberService memberService) : base(context, logger, mapper)
+        private readonly DemoSessionService _demoSessionService;
+        public FavoriteService(
+            LuiuDbContext context,
+            ILogger<FavoriteService> logger,
+            IMapper mapper,
+            MemberService memberService,
+            DemoSessionService demoSessionService) : base(context, logger, mapper)
         {
             _memberService = memberService;
+            _demoSessionService = demoSessionService;
         }
 
         public async Task<List<FavoriteItemDTO>> GetUserFavoritesAsync(string userId)
         {
             var memberId = await _memberService.GetMemberIdByUserIdAsync(userId);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
 
             // 1. 取得所有收藏紀錄
-            var collects = await _context.TCollects
-                .Where(c => c.MemberId == memberId)
-                .ToListAsync();
+            var query = _context.TCollects.Where(c => c.MemberId == memberId);
+            query = demoSession == null
+                ? query.Where(c => c.DemoSessionId == null)
+                : query.Where(c => c.DemoSessionId == demoSession.DemoSessionId);
+
+            var collects = await query.ToListAsync();
 
             var results = new List<FavoriteItemDTO>();
 
@@ -92,6 +104,8 @@ namespace Luiu.Service.Implementations
             // TODO: 檢查目標有沒有存在過
 
             var memberId = await _memberService.GetMemberIdByUserIdAsync(userId);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            Guid? demoSessionId = demoSession?.DemoSessionId;
 
             // 檢查類型是否合法，不合法直接結束
             if (!Enum.TryParse<CollectType>(dto.Type, out var typeEnum))
@@ -106,12 +120,18 @@ namespace Luiu.Service.Implementations
             var exists = await _context.TCollects
                 .AnyAsync(c => c.MemberId == memberId
                             && c.ObjectId == dto.TargetId
-                            && c.TypeId == typeId);
+                            && c.TypeId == typeId
+                            && c.DemoSessionId == demoSessionId);
 
             if (exists)
             {
                 _logger.LogWarning("使用者 {MemberId} 嘗試重複收藏項目 {TargetId}", memberId, dto.TargetId);
                 throw new AppConflictException("項目已被收藏");
+            }
+
+            if (demoSession != null)
+            {
+                await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.CreatedCollect);
             }
 
             //執行新增 (剩下的就是正常的流程)
@@ -120,7 +140,8 @@ namespace Luiu.Service.Implementations
                 MemberId = memberId,
                 TypeId = typeId,
                 ObjectId = dto.TargetId,
-                CollectTime = DateTime.UtcNow
+                CollectTime = DateTime.UtcNow,
+                DemoSessionId = demoSessionId
             };
 
             _context.TCollects.Add(collect);
@@ -132,12 +153,17 @@ namespace Luiu.Service.Implementations
         public async Task RemoveFavoriteAsync(string userId, int targetId, string type)
         {
             var memberId = await _memberService.GetMemberIdByUserIdAsync(userId);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            Guid? demoSessionId = demoSession?.DemoSessionId;
             int typeId = (int)Enum.Parse<CollectType>(type);
 
             _logger.LogInformation("嘗試移除：MemberId={Mid}, TargetId={Tid}, TypeId={Tid_db}", memberId, targetId, typeId);
 
             var favorite = await _context.TCollects.FirstOrDefaultAsync(f =>
-                f.MemberId == memberId && f.ObjectId == targetId && f.TypeId == typeId);
+                f.MemberId == memberId
+                && f.ObjectId == targetId
+                && f.TypeId == typeId
+                && f.DemoSessionId == demoSessionId);
 
             if (favorite != null)
             {

@@ -41,6 +41,20 @@ namespace API.Controllers.V1.Client
             return Success(response, "登入成功");
         }
 
+        // POST: api/v1/Auth/login/demo
+        [HttpPost("login/demo")]
+        [AllowAnonymous]
+        [EnableRateLimiting(LuiuConstants.RateLimitPolicies.DemoLogin)]
+        public async Task<ActionResult<ResultDTO<MemberDTO>>> DemoLogin()
+        {
+            var result = await _authService.DemoLoginAsync();
+
+            SetAuthCookie(result.Token, result.DemoSessionExpiresAt);
+            var response = _mapper.Map<MemberDTO>(result);
+
+            return Success(response, "Demo 登入成功");
+        }
+
         // POST: api/v1/Auth/login/google
         [HttpPost("login/google")]
         [AllowAnonymous]
@@ -59,7 +73,7 @@ namespace API.Controllers.V1.Client
             return Success(response, "登入成功");
         }
 
-        private void SetAuthCookie(string token)
+        private void SetAuthCookie(string token, DateTime? expiresAtUtc = null)
         {
             // Jwt Token放入Cookie
             //var expiry = _config.GetValue<int>("JwtSettings:DurationInHour");
@@ -71,7 +85,9 @@ namespace API.Controllers.V1.Client
                 Secure = Request.IsHttps,
                 SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
                 Path = "/",
-                Expires = DateTimeOffset.UtcNow.AddMinutes(expiry)
+                Expires = expiresAtUtc.HasValue
+                    ? new DateTimeOffset(DateTime.SpecifyKind(expiresAtUtc.Value, DateTimeKind.Utc))
+                    : DateTimeOffset.UtcNow.AddMinutes(expiry)
                 //Expires = DateTimeOffset.UtcNow.AddHours(expiry)
             };
 

@@ -3,18 +3,25 @@ using Asp.Versioning;
 using Luiu.Service.Implementations;
 using Luiu.Domain.DTOs;
 using Luiu.Service.DTOs.V1.Client;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers.V1.Client
 {
     [ApiVersion("1.0")]
+    [Authorize]
     [Route("api/v{version:apiVersion}/{userId}/plan-list")]
     [Route("{userId}/plan-list")]
     public class PlanController : BaseController<PlanController>
     {
         private readonly PlanService _planService;
-        public PlanController(ILogger<PlanController> logger, PlanService planService) : base(logger)
+        private readonly DemoSessionService _demoSessionService;
+        public PlanController(
+            ILogger<PlanController> logger,
+            PlanService planService,
+            DemoSessionService demoSessionService) : base(logger)
         {
             _planService = planService;
+            _demoSessionService = demoSessionService;
         }
 
         // GET: api/v1/{userId}/plan-list
@@ -22,6 +29,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<List<PlanListResponseDTO>>>>
             GetList(string userId)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             // PlanList CRUD：取得指定會員的行程卡片列表。
             _logger.LogInformation("Plan list requested. UserId={UserId}", userId);
             var result = await _planService.GetPlanListAsync(userId);
@@ -34,6 +42,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<PlanDetailResponseDTO>>>
             GetDetail(string userId, int tripId)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             _logger.LogInformation("Plan detail requested. UserId={UserId}, TripId={TripId}", userId, tripId);
             var result = await _planService.GetPlanDetailAsync(userId, tripId);
             _logger.LogInformation("Plan detail completed. UserId={UserId}, TripId={TripId}, DetailCount={DetailCount}", userId, tripId, result.TripDetails.Count);
@@ -45,6 +54,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<List<TripCommentResponseDTO>>>>
             GetTripComments(string userId, int tripId)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             _logger.LogInformation("Trip comments requested. UserId={UserId}, TripId={TripId}", userId, tripId);
             var result = await _planService.GetTripCommentsAsync(userId, tripId);
             _logger.LogInformation("Trip comments completed. UserId={UserId}, TripId={TripId}, CommentCount={CommentCount}", userId, tripId, result.Count);
@@ -58,6 +68,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<PlanListResponseDTO>>>
             Create(string userId, [FromForm] PlanListCreateRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             // PlanList CRUD：建立行程前先做最小必要欄位檢查。
             if (request == null || string.IsNullOrEmpty(request.TripName))
             {
@@ -75,6 +86,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<PlanDetailItemDTO>>>
             CreateTripDetail(string userId, int tripId, [FromBody] TripDetailCreateRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             if (request == null)
             {
                 return BadRequestFail("請提供行程明細資料");
@@ -97,6 +109,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<TripCommentResponseDTO>>>
             CreateTripComment(string userId, int tripId, [FromBody] TripCommentCreateRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             if (request == null)
             {
                 return BadRequestFail("請提供留言資料");
@@ -118,6 +131,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<PlanListResponseDTO>>>
             Update(string userId, int tripId, [FromForm] PlanListUpdateRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             // PlanList CRUD：更新行程卡片會用到的基本資料。
             if (request == null || string.IsNullOrEmpty(request.TripName))
             {
@@ -135,6 +149,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<UpdateTripSuggestResponseDTO>>>
             UpdateTripSuggest(string userId, int tripId, [FromBody] UpdateTripSuggestRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             if (request == null)
             {
                 return BadRequestFail("請提供推薦狀態資料");
@@ -151,6 +166,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<PlanDetailItemDTO>>>
             UpdateTripDetail(string userId, int tripId, int detailId, [FromBody] TripDetailUpdateRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             if (request == null)
             {
                 return BadRequestFail("請提供行程明細資料");
@@ -174,6 +190,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<List<PlanDetailItemDTO>>>>
             SyncTripDetails(string userId, int tripId, [FromBody] TripDetailSyncRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             if (request == null)
             {
                 return BadRequestFail("請提供行程明細同步資料");
@@ -196,6 +213,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<TripCommentResponseDTO>>>
             UpdateTripComment(string userId, int tripId, int commentId, [FromBody] TripCommentUpdateRequestDTO request)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             if (request == null)
             {
                 return BadRequestFail("請提供留言資料");
@@ -212,6 +230,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<bool>>>
             Delete(string userId, int tripId)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             // PlanList CRUD：刪除採軟刪除，由 Service 設定 IsDeleted。
             _logger.LogInformation("Plan delete requested. UserId={UserId}, TripId={TripId}", userId, tripId);
             var result = await _planService.DeletePlanAsync(userId, tripId);
@@ -224,6 +243,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<bool>>>
             DeleteTripDetail(string userId, int tripId, int detailId)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             _logger.LogInformation("Trip detail delete requested. UserId={UserId}, TripId={TripId}, DetailId={DetailId}", userId, tripId, detailId);
             var result = await _planService.DeleteTripDetailAsync(userId, tripId, detailId);
             _logger.LogInformation("Trip detail delete completed. UserId={UserId}, TripId={TripId}, DetailId={DetailId}", userId, tripId, detailId);
@@ -235,6 +255,7 @@ namespace API.Controllers.V1.Client
         public async Task<ActionResult<ResultDTO<bool>>>
             DeleteTripComment(string userId, int tripId, int commentId)
         {
+            _demoSessionService.EnsureRouteUserMatches(userId);
             _logger.LogInformation("Trip comment delete requested. UserId={UserId}, TripId={TripId}, CommentId={CommentId}", userId, tripId, commentId);
             var result = await _planService.DeleteTripCommentAsync(userId, tripId, commentId);
             _logger.LogInformation("Trip comment delete completed. UserId={UserId}, TripId={TripId}, CommentId={CommentId}", userId, tripId, commentId);

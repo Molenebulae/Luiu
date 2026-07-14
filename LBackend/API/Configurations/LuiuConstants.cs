@@ -19,6 +19,9 @@
             // 專門給一般功能（產品、購物車等業務）使用的中度防線（需手動掛標籤）
             public const string Business = "BusinessPolicy";
 
+            // Demo 登入專用防線，避免短時間大量建立 session
+            public const string DemoLogin = "DemoLoginPolicy";
+
             // 全域預設保底防線（系統自動套用，寫在這裡作為備忘與架構紀錄）
             public const string GlobalDefault = "GlobalDefaultPolicy";
         }
