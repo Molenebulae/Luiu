@@ -40,4 +40,6 @@ public partial class TTrip
     public string PhotoUrl { get; set; }
 
     public short? OfficeOper { get; set; }
+
+    public Guid? DemoSessionId { get; set; }
 }
