@@ -71,6 +71,7 @@
     <Build Include="dbo\Tables\tAdminLogs.sql" />
     <Build Include="dbo\Tables\tCategories.sql" />
     <Build Include="dbo\Tables\tCollects.sql" />
+    <Build Include="dbo\Tables\tDemoSessions.sql" />
     <Build Include="dbo\Tables\tCommentLikes.sql" />
     <Build Include="dbo\Tables\tComments.sql" />
     <Build Include="dbo\Tables\tEventRanks.sql" />

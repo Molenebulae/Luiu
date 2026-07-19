@@ -2,6 +2,7 @@ using AutoMapper;
 using Luiu.Domain.Exceptions;
 using Luiu.Domain.Models;
 using Luiu.Service.DTOs.V1.Client;
+using Luiu.Service.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ namespace Luiu.Service.Implementations
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly LuiuDbContext _db;
+        private readonly DemoSessionService _demoSessionService;
 
         private const string RoutesUrl = "https://routes.googleapis.com/directions/v2:computeRoutes";
         private static readonly TimeSpan RouteCacheSlidingExpiration = TimeSpan.FromDays(7);
@@ -42,16 +44,20 @@ namespace Luiu.Service.Implementations
             IOptions<GoogleMapsOptions> options,
             LuiuDbContext db,
             ILogger<GoogleRoutesService> logger,
-            IMapper mapper) : base(db, logger, mapper)
+            IMapper mapper,
+            DemoSessionService demoSessionService) : base(db, logger, mapper)
         {
             _httpClient = httpClient;
             _apiKey = options.Value.ApiKey;
             _db = db;
+            _demoSessionService = demoSessionService;
         }
 
         // ── 主要入口：計算多點路線 ─────────────────────────────────
         public async Task<RouteResultDTO> ComputeRouteAsync(RouteRequestDTO request)
         {
+            await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.RouteCompute);
+
             request.TravelMode = NormalizeTravelModes(request.TravelMode);
 
             if (request.DayNumber < 1)
@@ -63,10 +69,17 @@ namespace Luiu.Service.Implementations
             if (member == null)
                 throw new AppBadRequestException("找不到指定行程，或此行程不屬於該使用者");
 
-            var tripExists = await _db.TTrips
-                .AnyAsync(t => t.TripId == request.TripId
-                            && t.OwnerId == member.MemberId
-                            && !t.IsDeleted);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            var tripQuery = _db.TTrips
+                .Where(t => t.TripId == request.TripId
+                         && t.OwnerId == member.MemberId
+                         && !t.IsDeleted);
+
+            tripQuery = demoSession == null
+                ? tripQuery.Where(t => t.DemoSessionId == null)
+                : tripQuery.Where(t => t.DemoSessionId == demoSession.DemoSessionId);
+
+            var tripExists = await tripQuery.AnyAsync();
 
             if (!tripExists)
                 throw new AppBadRequestException("找不到指定行程，或此行程不屬於該使用者");
@@ -102,6 +115,7 @@ namespace Luiu.Service.Implementations
                         toStop.SpotId,
                         travelMode);
 
+                    await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.RouteExternalLeg);
                     leg = await CallRouteLegApiAsync(fromStop, toStop, travelMode);
                     await SaveRouteCacheAsync(cacheKey, fromStop, toStop, travelMode, leg);
                 }
@@ -289,6 +303,7 @@ namespace Luiu.Service.Implementations
                         origin.SpotId,
                         destination.SpotId);
 
+                    await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.RouteExternalLeg);
                     return await CallRouteLegApiAsync(origin, destination, "WALK");
                 }
 

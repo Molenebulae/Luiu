@@ -3,6 +3,7 @@ using Luiu.Domain.Conmon;
 using Luiu.Domain.Exceptions;
 using Luiu.Domain.Models;
 using Luiu.Service.DTOs.V1.Client;
+using Luiu.Service.Enums;
 using Luiu.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ namespace Luiu.Service.Implementations
     public class PlanService : BaseService<PlanService>
     {
         private readonly IStorageService _storageService;
+        private readonly DemoSessionService _demoSessionService;
         private const int TripCommentMaxLength = 50;
         private const int TripDetailSpotAliasMaxLength = 20;
         private const int TripDetailNotesMaxLength = 50;
@@ -27,9 +29,11 @@ namespace Luiu.Service.Implementations
             LuiuDbContext context,
             ILogger<PlanService> logger,
             IMapper mapper,
-            IStorageService storageService) : base(context, logger, mapper)
+            IStorageService storageService,
+            DemoSessionService demoSessionService) : base(context, logger, mapper)
         {
             _storageService = storageService;
+            _demoSessionService = demoSessionService;
         }
 
         // PlanList CRUD：私密行程不可被推薦，並相容 PrivacyStatus=2 的願意推薦狀態。
@@ -65,8 +69,15 @@ namespace Luiu.Service.Implementations
         private async Task<TTrip> GetOwnedTripAsync(string userId, int tripId)
         {
             var member = await ResolveMemberAsync(userId);
-            var trip = await _context.TTrips
-                .FirstOrDefaultAsync(t => t.OwnerId == member.MemberId && t.TripId == tripId && t.IsDeleted == false);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            var query = _context.TTrips
+                .Where(t => t.OwnerId == member.MemberId && t.TripId == tripId && t.IsDeleted == false);
+
+            query = demoSession == null
+                ? query.Where(t => t.DemoSessionId == null)
+                : query.Where(t => t.DemoSessionId == demoSession.DemoSessionId);
+
+            var trip = await query.FirstOrDefaultAsync();
 
             if (trip == null)
             {
@@ -79,8 +90,15 @@ namespace Luiu.Service.Implementations
         private async Task<TripCommentAccess> GetTripCommentAccessAsync(string userId, int tripId)
         {
             var member = await ResolveMemberAsync(userId);
-            var trip = await _context.TTrips
-                .FirstOrDefaultAsync(t => t.TripId == tripId && t.IsDeleted == false);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            var query = _context.TTrips
+                .Where(t => t.TripId == tripId && t.IsDeleted == false);
+
+            query = demoSession == null
+                ? query.Where(t => t.DemoSessionId == null)
+                : query.Where(t => t.DemoSessionId == demoSession.DemoSessionId);
+
+            var trip = await query.FirstOrDefaultAsync();
 
             if (trip == null)
             {
@@ -554,10 +572,17 @@ namespace Luiu.Service.Implementations
         // PlanList CRUD：POST / PUT 完成後共用此方法回傳與 GET 列表相同的巢狀 DTO。
         private async Task<PlanListResponseDTO> GetPlanListItemAsync(TMember member, int tripId)
         {
-            var trip = await _context.TTrips
-                .FirstOrDefaultAsync(t => t.OwnerId == member.MemberId
-                                       && t.TripId == tripId
-                                       && t.IsDeleted == false);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            var query = _context.TTrips
+                .Where(t => t.OwnerId == member.MemberId
+                         && t.TripId == tripId
+                         && t.IsDeleted == false);
+
+            query = demoSession == null
+                ? query.Where(t => t.DemoSessionId == null)
+                : query.Where(t => t.DemoSessionId == demoSession.DemoSessionId);
+
+            var trip = await query.FirstOrDefaultAsync();
 
             if (trip == null)
             {
@@ -732,12 +757,17 @@ namespace Luiu.Service.Implementations
         public async Task<List<PlanListResponseDTO>> GetPlanListAsync(string userId)
         {
             var member = await ResolveMemberAsync(userId);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
 
             // PlanList CRUD：GET 只回傳指定會員擁有且未軟刪除的行程。
-            var trips = await _context.TTrips
-                .Where(t => t.OwnerId == member.MemberId && t.IsDeleted == false)
-                .OrderByDescending(t => t.CreateAt)
-                .ToListAsync();
+            var query = _context.TTrips
+                .Where(t => t.OwnerId == member.MemberId && t.IsDeleted == false);
+
+            query = demoSession == null
+                ? query.Where(t => t.DemoSessionId == null)
+                : query.Where(t => t.DemoSessionId == demoSession.DemoSessionId);
+
+            var trips = await query.OrderByDescending(t => t.CreateAt).ToListAsync();
 
             return trips
                 .Select(trip => MapPlanListResponse(member, trip))
@@ -748,6 +778,11 @@ namespace Luiu.Service.Implementations
         {
             // PlanList CRUD：POST 建立前先確認會員存在，避免建立孤兒行程。
             var member = await ResolveMemberAsync(userId);
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: true);
+            if (demoSession != null)
+            {
+                await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.CreatedTrip);
+            }
 
             // TODO: PlanList CRUD：POST / PUT 前端已驗證圖片格式與大小，後端仍應依照
             CDictionary.UploadPolicies.TryGetValue("trips", out var policy);
@@ -773,8 +808,15 @@ namespace Luiu.Service.Implementations
                 IsDeleted = false,
                 CreateAt = now,
                 UpdateAt = now,
-                PhotoUrl = photoUrl
+                PhotoUrl = photoUrl,
+                DemoSessionId = demoSession?.DemoSessionId
             };
+
+            if (demoSession != null)
+            {
+                trip.IsSuggest = false;
+                trip.OfficeOper = 0;
+            }
 
             _context.TTrips.Add(trip);
             await _context.SaveChangesAsync();
@@ -786,15 +828,7 @@ namespace Luiu.Service.Implementations
         public async Task<PlanListResponseDTO> UpdatePlanAsync(string userId, int tripId, PlanListUpdateRequestDTO request)
         {
             var member = await ResolveMemberAsync(userId);
-
-            // PlanList CRUD：PUT 僅允許更新自己的未刪除行程。
-            var trip = await _context.TTrips
-                .FirstOrDefaultAsync(t => t.OwnerId == member.MemberId && t.TripId == tripId && t.IsDeleted == false);
-
-            if (trip == null)
-            {
-                throw new AppNotFoundException("找不到指定行程");
-            }
+            var trip = await GetOwnedTripAsync(userId, tripId);
 
             trip.TripName = request.TripName;
             trip.TripDesc = request.TripDesc;
@@ -822,6 +856,11 @@ namespace Luiu.Service.Implementations
                 var photoUrl = await _storageService.SaveFileAsync(request.Photo, policy);
                 trip.PhotoUrl = photoUrl;
             }
+            if (_demoSessionService.IsDemoRequest())
+            {
+                trip.IsSuggest = false;
+                trip.OfficeOper = 0;
+            }
             trip.UpdateAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
@@ -835,6 +874,11 @@ namespace Luiu.Service.Implementations
             int tripId,
             UpdateTripSuggestRequestDTO request)
         {
+            if (_demoSessionService.IsDemoRequest())
+            {
+                throw new AppForbiddenException("Demo 帳號不可變更推薦狀態");
+            }
+
             var trip = await GetOwnedTripAsync(userId, tripId);
 
             if (!request.IsSuggest.HasValue && !request.OfficeOper.HasValue)
@@ -878,16 +922,8 @@ namespace Luiu.Service.Implementations
 
         public async Task<bool> DeletePlanAsync(string userId, int tripId)
         {
-            var member = await ResolveMemberAsync(userId);
-
             // PlanList CRUD：DELETE 採軟刪除，保留資料並排除於列表之外。
-            var trip = await _context.TTrips
-                .FirstOrDefaultAsync(t => t.OwnerId == member.MemberId && t.TripId == tripId && t.IsDeleted == false);
-
-            if (trip == null)
-            {
-                throw new AppNotFoundException("找不到指定行程");
-            }
+            var trip = await GetOwnedTripAsync(userId, tripId);
 
             trip.IsDeleted = true;
             trip.UpdateAt = DateTime.Now;
@@ -1122,7 +1158,7 @@ namespace Luiu.Service.Implementations
 
             // 1. 取得符合條件的 TripIds（每個作者最新的一筆，並依時間排序取前 20 筆）
             var topTripIds = await _context.TTrips
-                .Where(t => t.OfficeOper == 1 && t.IsDeleted == false)
+                .Where(t => t.OfficeOper == 1 && t.IsDeleted == false && t.DemoSessionId == null)
                 .GroupBy(t => t.OwnerId)
                 .Select(g => new
                 {

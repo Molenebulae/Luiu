@@ -23,6 +23,8 @@ public partial class LuiuDbContext : DbContext
 
     public virtual DbSet<TCommentLike> TCommentLikes { get; set; }
 
+    public virtual DbSet<TDemoSession> TDemoSessions { get; set; }
+
     public virtual DbSet<TEvent> TEvents { get; set; }
 
     public virtual DbSet<TEventRank> TEventRanks { get; set; }
@@ -158,11 +160,47 @@ public partial class LuiuDbContext : DbContext
 
             entity.ToTable("tCollects");
 
+            entity.HasIndex(e => new { e.MemberId, e.DemoSessionId, e.TypeId, e.ObjectId }, "IX_tCollects_MemberID_DemoSessionID_TypeID_ObjectID");
+
             entity.Property(e => e.CollectId).HasColumnName("CollectID");
             entity.Property(e => e.CollectTime).HasColumnType("datetime");
+            entity.Property(e => e.DemoSessionId).HasColumnName("DemoSessionID");
             entity.Property(e => e.MemberId).HasColumnName("MemberID");
             entity.Property(e => e.ObjectId).HasColumnName("ObjectID");
             entity.Property(e => e.TypeId).HasColumnName("TypeID");
+        });
+
+        modelBuilder.Entity<TDemoSession>(entity =>
+        {
+            entity.HasKey(e => e.DemoSessionId).HasName("PK_tDemoSessions");
+
+            entity.ToTable("tDemoSessions");
+
+            entity.HasIndex(e => new { e.ClientIpHash, e.EndedAt, e.ExpiresAt }, "IX_tDemoSessions_ClientIpHash_EndedAt_ExpiresAt");
+
+            entity.HasIndex(e => new { e.ExpiresAt, e.EndedAt }, "IX_tDemoSessions_ExpiresAt_EndedAt");
+
+            entity.HasIndex(e => new { e.MemberId, e.ExpiresAt }, "IX_tDemoSessions_MemberID_ExpiresAt");
+
+            entity.Property(e => e.DemoSessionId).HasColumnName("DemoSessionID");
+            entity.Property(e => e.ClientIpHash)
+                .HasMaxLength(128)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedCollectCount).HasDefaultValue(0);
+            entity.Property(e => e.CreatedTripCount).HasDefaultValue(0);
+            entity.Property(e => e.EndReason).HasMaxLength(30);
+            entity.Property(e => e.EndedAt).HasColumnType("datetime");
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime");
+            entity.Property(e => e.MemberId).HasColumnName("MemberID");
+            entity.Property(e => e.PlaceSearchCount).HasDefaultValue(0);
+            entity.Property(e => e.RouteComputeCount).HasDefaultValue(0);
+            entity.Property(e => e.RouteExternalLegCount).HasDefaultValue(0);
+            entity.Property(e => e.StartedAt)
+                .HasDefaultValueSql("getdate()")
+                .HasColumnType("datetime");
+            entity.Property(e => e.UserAgentHash)
+                .HasMaxLength(128)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<TComment>(entity =>
@@ -713,10 +751,13 @@ public partial class LuiuDbContext : DbContext
 
             entity.ToTable("tTrips");
 
+            entity.HasIndex(e => new { e.OwnerId, e.DemoSessionId, e.IsDeleted }, "IX_tTrips_OwnerID_DemoSessionID_IsDeleted");
+
             entity.Property(e => e.TripId).HasColumnName("TripID");
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("getdate()")
                 .HasColumnType("datetime");
+            entity.Property(e => e.DemoSessionId).HasColumnName("DemoSessionID");
             entity.Property(e => e.IsSuggest).HasDefaultValue(false);
             entity.Property(e => e.ListId).HasColumnName("ListID");
             entity.Property(e => e.OfficeOper).HasDefaultValue((short)0);

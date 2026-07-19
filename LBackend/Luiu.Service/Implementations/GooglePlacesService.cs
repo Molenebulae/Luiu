@@ -2,6 +2,7 @@ using AutoMapper;
 using Luiu.Domain.Exceptions;
 using Luiu.Domain.Models;
 using Luiu.Service.DTOs.V1.Client;
+using Luiu.Service.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,7 @@ namespace Luiu.Service.Implementations
     {
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
+        private readonly DemoSessionService _demoSessionService;
         private readonly string _apiKey;
         private const string BaseUrl = "https://places.googleapis.com/v1/places";
         private static readonly TimeSpan TextSearchCacheDuration = TimeSpan.FromMinutes(10);
@@ -43,16 +45,20 @@ namespace Luiu.Service.Implementations
             IMemoryCache cache,
             LuiuDbContext context,
             ILogger<GooglePlacesService> logger,
-            IMapper mapper) : base(context, logger, mapper)
+            IMapper mapper,
+            DemoSessionService demoSessionService) : base(context, logger, mapper)
         {
             _httpClient = httpClient;
             _cache = cache;
+            _demoSessionService = demoSessionService;
             _apiKey = options.Value.ApiKey;
         }
 
         // ── 文字搜尋（回傳清單，不存DB，讓使用者選） ──────────────
         public async Task<List<PlaceResultDTO>> TextSearchAsync(string query)
         {
+            await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.PlaceSearch);
+
             query = query.Trim();
             var cacheKey = $"GooglePlaces:TextSearch:{query.ToUpperInvariant()}";
             if (_cache.TryGetValue(cacheKey, out List<PlaceResultDTO>? cachedResults) && cachedResults != null)
@@ -101,6 +107,8 @@ namespace Luiu.Service.Implementations
         // ── Autocomplete 建議（回傳候選，不存DB） ──────────────
         public async Task<List<GoogleMapPlaceAutocompleteDTO>> AutocompleteAsync(string input, string? sessionToken)
         {
+            await _demoSessionService.IncrementQuotaAsync(DemoQuotaType.PlaceSearch);
+
             input = input.Trim();
             var requestBody = new Dictionary<string, object>
             {

@@ -1,7 +1,7 @@
 <script setup>
 import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { ref, reactive } from 'vue'
-import { loginApi } from '@/api/auth'
+import { demoLoginApi, loginApi } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
 import { useAuthManager } from '@/composables/AuthManager'
 import LuiuSeparator from '@/components/base/LuiuSeparator.vue'
@@ -55,6 +55,28 @@ const login = async () => {
     loading.value = false
   }
 }
+
+const loginDemo = async () => {
+  errorMessage.value = ''
+
+  try {
+    loading.value = true
+    const result = await demoLoginApi()
+    const userStore = useUserStore()
+    userStore.login(result.data)
+
+    const fromPath = route.query.redirect
+    if (fromPath) {
+      router.push(fromPath)
+    } else {
+      router.push({ name: 'Home' })
+    }
+  } catch (error) {
+    errorMessage.value = error?.message || 'Demo 登入發生錯誤'
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -86,6 +108,9 @@ const login = async () => {
     <div class="form-item">
       <button class="btn btn-primary w-100 my-2" :disabled="loading">
         {{ loading ? '驗證中...' : '登入' }}
+      </button>
+      <button type="button" class="btn btn-outline-primary w-100" :disabled="loading" @click="loginDemo">
+        {{ loading ? '驗證中...' : '使用 Demo 帳號' }}
       </button>
     </div>
   </form>

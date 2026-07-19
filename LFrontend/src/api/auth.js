@@ -8,6 +8,13 @@ export const loginApi = (data) => {
   })
 };
 
+export const demoLoginApi = () => {
+  return request({
+    url: '/Auth/login/demo',
+    method: 'post'
+  })
+};
+
 export const logoutApi = (data) => {
   return request({
     url: '/Auth/logout',

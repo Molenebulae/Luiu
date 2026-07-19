@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using Luiu.Service.Implementations;
 using Luiu.Service.Interfaces;
+using Luiu.Service.Options;
 using Luiu.Service.Strategies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,8 @@ namespace Luiu.Service.Extensions
         // 註冊 Services
         public static IServiceCollection AddInternalServices(this IServiceCollection services, IConfiguration config)
         {
+            services.Configure<DemoAccountOptions>(config.GetSection("DemoAccount"));
+
             // Scoped, transient, singleton
             services.AddTransient<IEmailService, EmailService>();
             // 第三方登入註冊
@@ -28,6 +31,7 @@ namespace Luiu.Service.Extensions
 
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<DemoSessionService>();
             services.AddScoped<MemberService>();
             services.AddScoped<FollowService>();
             services.AddScoped<FavoriteService>();

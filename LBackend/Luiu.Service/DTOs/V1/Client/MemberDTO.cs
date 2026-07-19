@@ -17,5 +17,8 @@ namespace Luiu.Service.DTOs.V1.Client
         public byte Gender { get; set; } = 0;
         public string Role { get; set; }
         public string? Token { get; set; }
+        public bool IsDemoAccount { get; set; }
+        public DateTime? DemoSessionExpiresAt { get; set; }
+        public DemoQuotaDTO? DemoQuota { get; set; }
     }
 }

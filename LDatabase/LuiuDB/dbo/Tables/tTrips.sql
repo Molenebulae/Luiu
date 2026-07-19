@@ -16,6 +16,11 @@
     [OfficeOper]    SMALLINT         DEFAULT ((0)) NULL,
     [PhotoURL]      NVARCHAR (255)   NULL,
     [TripTag]       NVARCHAR (10)    NULL,
+    [DemoSessionID] UNIQUEIDENTIFIER NULL,
     PRIMARY KEY CLUSTERED ([TripID] ASC)
 );
 
+GO
+
+CREATE INDEX [IX_tTrips_OwnerID_DemoSessionID_IsDeleted]
+    ON [dbo].[tTrips] ([OwnerID], [DemoSessionID], [IsDeleted]);

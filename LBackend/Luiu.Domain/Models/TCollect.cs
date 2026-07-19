@@ -16,4 +16,6 @@ public partial class TCollect
     public int ObjectId { get; set; }
 
     public DateTime CollectTime { get; set; }
+
+    public Guid? DemoSessionId { get; set; }
 }

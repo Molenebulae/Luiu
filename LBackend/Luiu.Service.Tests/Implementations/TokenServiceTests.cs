@@ -41,7 +41,7 @@ namespace Luiu.Service.Tests.Implementations
             var expectedUserId = "Luiu_tem-member-01";
 
             // Act
-            var tokenString = tokenService.CreateToken(expectedUserId);
+            var tokenString = tokenService.CreateToken(expectedUserId, roleType: 1);
 
             _output.WriteLine($"JWT Token: {tokenString}");
             _output.WriteLine($"UserId: {expectedUserId}");
@@ -77,7 +77,7 @@ namespace Luiu.Service.Tests.Implementations
             var tokenService = new TokenService(realConfig, mockLogger.Object);
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => tokenService.CreateToken("any_user_id"));
+            Assert.Throws<InvalidOperationException>(() => tokenService.CreateToken("any_user_id", roleType: 1));
         }
     }
 }

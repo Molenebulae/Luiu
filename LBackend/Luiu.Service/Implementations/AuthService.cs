@@ -10,6 +10,7 @@ using Luiu.Service.DTOs;
 using Luiu.Service.DTOs.V1.Client;
 using Luiu.Service.Extensions;
 using Luiu.Service.Interfaces;
+using Luiu.Service.Options;
 using Luiu.Service.Strategies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace Luiu.Service.Implementations
 {
@@ -30,6 +33,8 @@ namespace Luiu.Service.Implementations
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IEnumerable<IOAuthStrategy> _strategies;
         private readonly IVerificationService _verifyService;
+        private readonly DemoSessionService _demoSessionService;
+        private readonly DemoAccountOptions _demoOptions;
         public AuthService(
             LuiuDbContext context,
             ILogger<AuthService> logger,
@@ -41,7 +46,9 @@ namespace Luiu.Service.Implementations
             IStorageService storageService,
             IHttpClientFactory httpClientFactory,
             IEnumerable<IOAuthStrategy> strategies,
-            IVerificationService verifyService) : base(context, logger, mapper)
+            IVerificationService verifyService,
+            DemoSessionService demoSessionService,
+            IOptions<DemoAccountOptions> demoOptions) : base(context, logger, mapper)
         {
             _cache = cache;
             _tokenService = tokenService;
@@ -51,6 +58,8 @@ namespace Luiu.Service.Implementations
             _httpClientFactory = httpClientFactory;
             _strategies = strategies;
             _verifyService = verifyService;
+            _demoSessionService = demoSessionService;
+            _demoOptions = demoOptions.Value;
         }
 
         public async Task<LoginResultDTO> LoginAsync(LoginRequestDTO request)
@@ -93,6 +102,62 @@ namespace Luiu.Service.Implementations
             _logger.LogInformation($"{response}");
 
             return response;
+        }
+
+        public async Task<LoginResultDTO> DemoLoginAsync()
+        {
+            var member = await EnsureDemoMemberAsync();
+            var session = await _demoSessionService.CreateSessionAsync(member.MemberId);
+
+            await RecordLoginLogAsync(member.MemberId, "Success", "DemoLogin");
+
+            var response = _mapper.Map<LoginResultDTO>(member);
+            response.IsDemoAccount = true;
+            response.DemoSessionExpiresAt = session.ExpiresAt;
+            response.DemoQuota = _demoSessionService.MapQuota(session);
+            response.Token = _tokenService.CreateToken(
+                member.UserId,
+                member.RoleId,
+                new[]
+                {
+                    new Claim(DemoSessionService.IsDemoClaim, "true"),
+                    new Claim(DemoSessionService.DemoSessionIdClaim, session.DemoSessionId.ToString()),
+                    new Claim(DemoSessionService.DemoExpiresAtClaim, session.ExpiresAt.ToString("O"))
+                },
+                session.ExpiresAt);
+
+            return response;
+        }
+
+        private async Task<TMember> EnsureDemoMemberAsync()
+        {
+            var member = await _context.TMembers.FirstOrDefaultAsync(m => m.Email == _demoOptions.DemoEmail);
+            if (member != null)
+            {
+                return member;
+            }
+
+            member = new TMember
+            {
+                UserId = "",
+                Email = _demoOptions.DemoEmail,
+                Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
+                Name = _demoOptions.DemoName,
+                RoleId = (int)AppEnums.RoleType.Member,
+                ProfileStatus = true,
+                Status = (byte)AppEnums.MemberStatus.Acitve,
+                CreateDate = DateTime.Now,
+                UpdateDate = DateTime.Now,
+                IsDelete = false
+            };
+
+            _context.TMembers.Add(member);
+            await _context.SaveChangesAsync();
+
+            member.UserId = $"Demo_{member.MemberId}";
+            await _context.SaveChangesAsync();
+
+            return member;
         }
 
         public async Task<LoginResultDTO> OAuthLoginAsync(string provider, string code)
@@ -423,10 +488,25 @@ namespace Luiu.Service.Implementations
 
         public async Task<MemberDTO> GetMemberByUserIdAsync(string userId)
         {
-            return await _context.TMembers
+            var member = await _context.TMembers
                 .Where(m => m.UserId == userId)
                 .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
+
+            if (member == null)
+            {
+                return member;
+            }
+
+            var demoSession = await _demoSessionService.GetCurrentSessionAsync(throwIfInvalid: false);
+            if (demoSession != null)
+            {
+                member.IsDemoAccount = true;
+                member.DemoSessionExpiresAt = demoSession.ExpiresAt;
+                member.DemoQuota = _demoSessionService.MapQuota(demoSession);
+            }
+
+            return member;
         }
     }
 }
