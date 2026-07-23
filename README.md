@@ -102,15 +102,19 @@ Luiu
 
 ## Deployment
 
-Luiu is currently being prepared for modern deployment as part of my continued learning process.
+Luiu is deployed across multiple cloud platforms as a fully separated frontend and backend architecture.
 
-Planned deployment goals include:
+- Frontend is deployed to Cloudflare Pages as a static web application.
+- Backend is deployed to Render running ASP.NET Core Web API.
+- Database is hosted on Azure SQL as a managed cloud database.
 
-- Deploying the frontend as a static web application.
-- Deploying the ASP.NET Core Web API to a cloud environment.
-- Hosting SQL Server or a compatible managed database.
-- Managing environment variables and API keys securely.
-- Adding production-ready configuration for CORS, authentication, logging, and monitoring.
+During deployment, the following issues were identified and resolved:
+- Configuring CORS policies to allow cross-origin requests between the frontend and backend domains.
+- Setting up JWT authentication to work correctly across environments.
+- Managing environment variables and API keys outside of source control.
+- Establishing stable connectivity between the backend and Azure SQL.
+
+The application is currently accessible at luiu.pages.dev and available for live demonstration.
 
 ## Project Architecture
 
